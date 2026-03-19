@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Madness 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080809;
+  --s1: #101012;
+  --s2: #17171a;
+  --s3: #1e1e22;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --text: #eeebe4;
+  --muted: #68665f;
+  --dim: #323230;
+  --accent: #ff6b2b;
+  --gold: #ffd166;
+  --ok: #4ade80;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --claude:  #cc785c;
+  --chatgpt: #10a37f;
+  --gemini:  #5f8df0;
+  --grok:    #c8d0e0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity: .35;
+}
+
+/* HEADER */
+header {
+  position: relative; text-align: center;
+  padding: 60px 24px 44px; border-bottom: 1px solid var(--border); overflow: hidden;
+}
+header::before {
+  content: ''; position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 340px;
+  background: radial-gradient(ellipse, rgba(255,107,43,.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+.eyebrow { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(60px,10vw,108px); letter-spacing:.03em; line-height:.95; }
+h1 em { color:var(--accent); font-style:normal; }
+.subtitle { margin-top:14px; color:var(--muted); font-size:13px; font-weight:300; }
+
+/* TICKER */
+.ticker { background:var(--s1); border-bottom:1px solid var(--border); padding:0 24px; height:44px; display:flex; align-items:center; gap:0; overflow:hidden; }
+.ticker-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); padding-right:20px; border-right:1px solid var(--border); margin-right:20px; white-space:nowrap; flex-shrink:0; }
+.ticker-items { display:flex; gap:28px; align-items:center; flex:1; overflow:hidden; }
+.ticker-ai { display:flex; align-items:center; gap:8px; }
+.ticker-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.ticker-name { font-size:12px; font-weight:500; }
+.ticker-score { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; color:var(--gold); min-width:24px; }
+.ticker-of { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); }
+.ticker-right { margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0; padding-left:20px; border-left:1px solid var(--border); }
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--ok); flex-shrink:0; animation:pulse 2s ease-in-out infinite; }
+.live-dot.error { background:var(--bad); animation:none; }
+.live-dot.loading { background:var(--warn); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.live-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.08em; color:var(--muted); }
+
+/* MAIN */
+main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
+.sh { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; }
+.sh h2 { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:.06em; }
+.sh p { font-size:12px; color:var(--muted); }
+.spacer { height:48px; }
+
+/* RESULTS STRIP */
+.results-strip { background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:10px 16px; margin-bottom:36px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.rs-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); flex-shrink:0; }
+.rs-content { font-size:12px; color:var(--muted); flex:1; }
+.rs-content strong { color:var(--text); font-weight:500; }
+.rs-btn { background:transparent; border:1px solid var(--border); border-radius:5px; padding:4px 10px; font-size:11px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; flex-shrink:0; }
+.rs-btn:hover { border-color:var(--border2); color:var(--text); }
+.rs-btn.primary:hover { border-color:var(--accent); color:var(--accent); }
+
+/* LEADERBOARD */
+.lb-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:48px; }
+.lb-podium { display:grid; grid-template-columns:repeat(4,1fr); }
+@media(max-width:700px){ .lb-podium{grid-template-columns:repeat(2,1fr);} }
+.lb-card { padding:24px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; overflow:hidden; transition:background .2s; }
+.lb-card:last-child { border-right:none; }
+.lb-card.leader { background:var(--s2); }
+.lb-card-rank { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; margin-bottom:8px; color:var(--dim); transition:color .4s; }
+.lb-card.rank-1 .lb-card-rank { color:var(--gold); }
+.lb-card.rank-2 .lb-card-rank { color:#a8a8a8; }
+.lb-card.rank-3 .lb-card-rank { color:#9a7d55; }
+.lb-card-ai { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.lb-card-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.lb-card-name { font-size:13px; font-weight:500; }
+.lb-card-score { font-family:'Bebas Neue',sans-serif; font-size:52px; line-height:1; margin-bottom:2px; transition:all .4s; }
+.lb-card-max { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); }
+.lb-bar-wrap { height:3px; background:var(--s3); border-radius:2px; margin-top:14px; overflow:hidden; }
+.lb-bar-fill { height:100%; border-radius:2px; transition:width .8s cubic-bezier(.4,0,.2,1); width:0; }
+.lb-champ-tag { margin-top:10px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+.lb-champ-tag strong { color:var(--text); font-weight:500; }
+.lb-card.rank-1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--gold); opacity:.6; }
+
+/* PICK GRID */
+.pick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:48px; }
+@media(max-width:860px){ .pick-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:480px){ .pick-grid{grid-template-columns:1fr;} }
+.pick-card { background:var(--s1); border:1px solid var(--border); border-radius:12px; overflow:hidden; animation:fadeUp .4s ease both; }
+.pick-card:nth-child(2){ animation-delay:.07s; }
+.pick-card:nth-child(3){ animation-delay:.14s; }
+.pick-card:nth-child(4){ animation-delay:.21s; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+.pc-head { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.pc-logo { width:34px; height:34px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:13px; font-weight:500; }
+.pc-name { font-size:13px; font-weight:500; }
+.pc-model { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); }
+.pc-score-badge { margin-left:auto; font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; color:var(--gold); min-width:28px; text-align:right; transition:all .3s; }
+.pc-body { padding:14px 16px; }
+.pc-section-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:8px; padding-bottom:5px; border-bottom:1px solid var(--border); }
+.pick-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+.pick-region { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); width:52px; flex-shrink:0; }
+.pick-team { flex:1; font-size:12px; font-weight:500; color:var(--text); background:var(--s2); border:1px solid var(--border); border-radius:5px; padding:4px 8px; transition:border-color .2s,background .2s,color .2s; }
+.pick-team.correct  { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.3); color:var(--ok); }
+.pick-team.incorrect{ background:rgba(248,113,113,.08); border-color:rgba(248,113,113,.2); color:var(--bad); }
+.pick-team.pending  { color:var(--muted); }
+.pick-badge { width:18px; height:18px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; border:1px solid var(--border); color:var(--dim); transition:all .25s; }
+.pick-badge.correct  { background:rgba(74,222,128,.15); border-color:var(--ok); color:var(--ok); }
+.pick-badge.incorrect{ background:rgba(248,113,113,.1); border-color:var(--bad); color:var(--bad); }
+.pick-badge.pending  { border-style:dashed; }
+.pick-section-gap { height:10px; }
+.pc-champ-row { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.pc-champ-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; width:52px; flex-shrink:0; }
+.pc-champ-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; flex:1; transition:color .3s; }
+.pc-champ-name.correct { color:var(--ok); }
+.pc-champ-name.incorrect { color:var(--bad); }
+
+/* COMPARISON */
+.comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:48px; }
+@media(max-width:640px){ .comparison-grid{grid-template-columns:1fr;} }
+.comp-card { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; }
+.comp-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+.consensus-item { margin-bottom:14px; }
+.consensus-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
+.consensus-team { font-size:13px; font-weight:500; }
+.consensus-pct { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+.consensus-bar-track { height:6px; background:var(--s3); border-radius:3px; overflow:hidden; }
+.consensus-bar-fill { height:100%; border-radius:3px; transition:width 1s cubic-bezier(.4,0,.2,1); width:0; }
+.consensus-ais { display:flex; gap:4px; margin-top:5px; }
+.consensus-ai-dot { width:18px; height:18px; border-radius:4px; font-size:8px; font-weight:600; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
+.matrix-wrap { overflow-x:auto; }
+table.matrix { width:100%; border-collapse:collapse; font-size:12px; }
+table.matrix th { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding:6px 8px; text-align:left; border-bottom:1px solid var(--border); }
+table.matrix td { padding:7px 8px; border-bottom:1px solid var(--border); }
+table.matrix tr:last-child td { border-bottom:none; }
+.cell-agree { color:var(--ok); font-weight:500; }
+.cell-disagree { color:var(--bad); }
+.tag { display:inline-block; padding:2px 6px; border-radius:3px; font-family:'DM Mono',monospace; font-size:9px; font-weight:500; letter-spacing:.04em; }
+.tag-agree { background:rgba(74,222,128,.1); color:var(--ok); }
+.tag-disagree { background:rgba(248,113,113,.08); color:var(--bad); }
+
+/* INSIGHTS */
+.insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:48px; }
+@media(max-width:640px){ .insights-grid{grid-template-columns:1fr;} }
+.insight-card { background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:18px; }
+.insight-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:var(--accent); margin-bottom:4px; }
+.insight-label { font-size:12px; color:var(--muted); line-height:1.5; }
+.insight-label strong { color:var(--text); font-weight:500; }
+
+/* FOOTER */
+footer { border-top:1px solid var(--border); padding:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.footer-note { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:.04em; }
+.footer-export { background:transparent; border:1px solid var(--border); border-radius:5px; padding:5px 12px; font-size:11px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.footer-export:hover { border-color:var(--border2); color:var(--text); }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:var(--s2); border:1px solid var(--border2); border-radius:14px; padding:28px; width:min(520px,90vw); max-height:80vh; overflow-y:auto; }
+.modal h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.06em; margin-bottom:6px; }
+.modal p { font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.6; }
+.modal textarea { width:100%; background:var(--s3); border:1px solid var(--border2); border-radius:8px; color:var(--text); font-family:'DM Mono',monospace; font-size:11px; padding:12px; line-height:1.7; resize:vertical; min-height:140px; outline:none; }
+.modal textarea:focus { border-color:var(--accent); }
+.modal-btns { display:flex; gap:8px; margin-top:14px; }
+.modal-btn { padding:8px 18px; border-radius:7px; font-size:13px; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.modal-btn-primary { background:var(--accent); border:1px solid var(--accent); color:#fff; }
+.modal-btn-primary:hover { background:#e85f1e; }
+.modal-btn-cancel { background:transparent; border:1px solid var(--border); color:var(--muted); }
+.modal-btn-cancel:hover { border-color:var(--border2); color:var(--text); }
+
+/* CONTEXT BAR */
+.context-bar { background:var(--s2); border-bottom:1px solid var(--border); padding:0 24px; }
+.context-inner { max-width:1320px; margin:0 auto; display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+.context-block { padding:14px 0; flex:1; min-width:200px; }
+.context-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
+.context-value { font-size:12px; color:var(--muted); line-height:1.4; }
+.context-divider { width:1px; background:var(--border); margin:10px 28px; flex-shrink:0; }
+
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--s2); border:1px solid var(--border2); border-radius:8px; padding:10px 20px; font-size:13px; color:var(--text); opacity:0; transition:all .25s; z-index:2000; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">NCAA March Madness · 2026 · An Experiment</div>
+  <h1>Model <em>Madness</em></h1>
+  <p class="subtitle">Four AI models. One bracket. Asked on March 19, 2026. Who called it?</p>
+</header>
+
+<div class="ticker">
+  <span class="ticker-label">Model Madness</span>
+  <div class="ticker-items">
+    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--claude)"></div><span class="ticker-name">Claude</span><span class="ticker-score" id="t-claude">—</span><span class="ticker-of">/ 120</span></div>
+    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--chatgpt)"></div><span class="ticker-name">ChatGPT</span><span class="ticker-score" id="t-chatgpt">—</span><span class="ticker-of">/ 120</span></div>
+    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--gemini)"></div><span class="ticker-name">Gemini</span><span class="ticker-score" id="t-gemini">—</span><span class="ticker-of">/ 120</span></div>
+    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--grok)"></div><span class="ticker-name">Grok</span><span class="ticker-score" id="t-grok">—</span><span class="ticker-of">/ 120</span></div>
+  </div>
+  <div class="ticker-right">
+    <div class="live-dot" id="live-dot"></div>
+    <span class="live-label" id="live-label">Connecting…</span>
+  </div>
+</div>
+
+<div class="context-bar">
+  <div class="context-inner">
+    <div class="context-block">
+      <div class="context-label">The Prompt</div>
+      <div class="context-value">"Give me a final four full bracket for the NCAA men's tournament that's about to start."</div>
+    </div>
+    <div class="context-divider"></div>
+    <div class="context-block">
+      <div class="context-label">Asked On</div>
+      <div class="context-value">March 19, 2026 &mdash; Day 1 of the first round</div>
+    </div>
+    <div class="context-divider"></div>
+    <div class="context-block">
+      <div class="context-label">Models Tested</div>
+      <div class="context-value">Claude Sonnet 4.6 &nbsp;·&nbsp; ChatGPT GPT-4o &nbsp;·&nbsp; Gemini 2.5 Pro &nbsp;·&nbsp; Grok 3</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="results-strip">
+    <span class="rs-label">Live Results</span>
+    <span class="rs-content" id="rs-content">Fetching from ESPN…</span>
+    <button class="rs-btn primary" onclick="doFetch()">↺ Refresh</button>
+    <button class="rs-btn" onclick="openOverride()">✎ Override</button>
+  </div>
+
+  <div class="sh"><h2>Standings</h2><p>Real-time scores as the tournament plays out — picks were locked in on March 19</p></div>
+  <div class="lb-wrap"><div class="lb-podium" id="lb-podium"></div></div>
+
+  <div class="sh"><h2>The Picks</h2><p>Each AI was given the same prompt on March 19, 2026 — the day the first round tipped off</p></div>
+  <div class="pick-grid" id="pick-grid"></div>
+
+  <div class="sh"><h2>AI vs The Public</h2><p>How do the AI picks compare to ESPN bracket challenge pick percentages?</p></div>
+  <div class="comparison-grid">
+    <div class="comp-card">
+      <div class="comp-title">Champion pick — AI vs public %</div>
+      <div id="consensus-bars"></div>
+      <div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;">Source: ESPN Bracket Challenge public pick data</div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-title">Pick agreement matrix</div>
+      <div class="matrix-wrap"><table class="matrix" id="agreement-matrix"></table></div>
+    </div>
+  </div>
+
+  <div class="sh"><h2>The Experiment</h2><p>Same prompt. Same day. Four different answers. Here's what the data shows.</p></div>
+  <div class="insights-grid" id="insights-grid"></div>
+</main>
+
+<footer>
+  <span class="footer-note">modelmadness.com · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
+  <button class="footer-export" onclick="doExport()">↓ Export Summary</button>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeOverride(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Manual Override</h3>
+    <p>ESPN's undocumented API sometimes changes structure. Use this to enter known results directly. Teams listed here will be scored immediately.</p>
+    <textarea id="override-input" spellcheck="false"></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-primary" onclick="applyOverride()">Apply</button>
+      <button class="modal-btn modal-btn-cancel" onclick="closeOverride()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── PICKS (single source of truth) ───────────────────────────────────────
+const PICKS = {
+  claude: {
+    name:'Claude', model:'Sonnet 4.6', color:'#cc785c', initial:'C',
+    ff:   { east:'Duke', west:'Arizona', midwest:'Michigan', south:'Florida' },
+    sf:   ['Duke','Florida'],
+    champ:'Florida',
+    note: 'Defending champs. Top rebounding margin in the country (+14.5). Frontcourt depth.',
+  },
+  chatgpt: {
+    name:'ChatGPT', model:'GPT-4o', color:'#10a37f', initial:'G',
+    ff:   { east:'UConn', west:'Arizona', midwest:'Purdue', south:'Houston' },
+    sf:   ['UConn','Houston'],
+    champ:'UConn',
+    note: "Been here, know how to close. Classic offense vs defense title game vs Houston.",
+  },
+  gemini: {
+    name:'Gemini', model:'2.5 Pro', color:'#5f8df0', initial:'G',
+    ff:   { east:'Duke', west:'Arizona', midwest:'Purdue', south:'Houston' },
+    sf:   ['Duke','Purdue'],
+    champ:'Duke',
+    note: 'Cooper Flagg + NBA-level depth. Cuts down the nets in Indy like 2010 & 2015.',
+  },
+  grok: {
+    name:'Grok', model:'Grok 3', color:'#c8d0e0', initial:'X',
+    ff:   { east:'Duke', west:'Arizona', midwest:'Purdue', south:'Florida' },
+    sf:   ['Duke','Arizona'],
+    champ:'Arizona',
+    note: 'Momentum, friendly draw, peaking at the right time. Wildcats win it all.',
+  },
+};
+
+const ORDER = ['claude','chatgpt','gemini','grok'];
+const MAX   = 120; // 4×10 + 2×20 + 1×40
+
+// ESPN Bracket Challenge approximate public pick percentages for champion
+// Source: ESPN BPI / bracket challenge (updated manually if needed)
+const PUB_PCT = {
+  Duke:8, Arizona:18, Michigan:14, Florida:12,
+  UConn:9, Purdue:4, Houston:6, Other:5,
+};
+
+// ─── LIVE STATE ────────────────────────────────────────────────────────────
+const S = {
+  ff:     [],    // confirmed Final Four teams
+  semis:  [],    // Final Four game winners (going to title game)
+  champ:  null,
+  status: 'loading',
+  lastFetch: null,
+};
+
+// Name normalization
+const NORM = {
+  'duke blue devils':'Duke','duke':'Duke',
+  'arizona wildcats':'Arizona','arizona':'Arizona',
+  'michigan wolverines':'Michigan','michigan':'Michigan',
+  'florida gators':'Florida','florida':'Florida',
+  'uconn huskies':'UConn','connecticut':'UConn','uconn':'UConn',
+  'purdue boilermakers':'Purdue','purdue':'Purdue',
+  'houston cougars':'Houston','houston':'Houston',
+  'iowa state cyclones':'Iowa St','iowa state':'Iowa St',
+};
+const N = s => s ? (NORM[s.toLowerCase().trim()] || s.trim()) : '';
+
+// ─── SCORING ───────────────────────────────────────────────────────────────
+function score(id) {
+  const p = PICKS[id];
+  let pts = 0;
+  const d = { ff:{}, sf:[null,null], champ:'pending' };
+  const ffDone = S.ff.length >= 4;
+  const sfDone = S.semis.length >= 2;
+  const ffLow  = S.ff.map(t=>t.toLowerCase());
+  const sfLow  = S.semis.map(t=>t.toLowerCase());
+
+  for (const [r,team] of Object.entries(p.ff)) {
+    if (ffLow.includes(team.toLowerCase())) { pts+=10; d.ff[r]='correct'; }
+    else d.ff[r] = ffDone ? 'incorrect' : 'pending';
+  }
+  p.sf.forEach((team,i) => {
+    if (sfLow.includes(team.toLowerCase())) { pts+=20; d.sf[i]='correct'; }
+    else d.sf[i] = sfDone ? 'incorrect' : 'pending';
+  });
+  if (S.champ) {
+    if (S.champ.toLowerCase()===p.champ.toLowerCase()) { pts+=40; d.champ='correct'; }
+    else d.champ='incorrect';
+  }
+  return { pts, d };
+}
+
+function allScores() {
+  const o={};
+  ORDER.forEach(id => o[id]=score(id));
+  return o;
+}
+
+// ─── ESPN FETCH ────────────────────────────────────────────────────────────
+const ESPN_URL='https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+
+async function doFetch() {
+  setStatus('loading');
+  try {
+    const r = await fetch(ESPN_URL, {cache:'no-store'});
+    if (!r.ok) throw new Error(r.status);
+    parseESPN(await r.json());
+    S.status='live'; S.lastFetch=new Date();
+    setStatus('live');
+  } catch(e) {
+    console.warn('ESPN:', e);
+    S.status='error';
+    setStatus('error');
+  }
+  render();
+}
+
+function parseESPN(data) {
+  const ff=new Set(S.ff), sm=new Set(S.semis);
+  let ch=S.champ;
+  for (const ev of (data.events||[])) {
+    if (!ev.status?.type?.completed) continue;
+    const comp = ev.competitions?.[0];
+    if (!comp) continue;
+    const comps = comp.competitors||[];
+    const win  = comps.find(c=>c.winner);
+    const lose = comps.find(c=>!c.winner);
+    if (!win) continue;
+    const wn = N(win.team?.displayName||win.team?.name||'');
+    const ln = lose ? N(lose.team?.displayName||lose.team?.name||'') : '';
+    const notes = (comp.notes||[]).map(n=>(n.headline||'').toLowerCase()).join(' ');
+    const ra = (comp.type?.abbreviation||'').toString().toUpperCase();
+    const isNCG = ra==='NCG'||ra==='NC'||notes.includes('national championship')||notes.includes('championship game');
+    const isFF  = ra==='FF'||ra==='NSF'||notes.includes('final four')||notes.includes('semifinal');
+    const isEE  = ra==='EE'||ra==='RE'||notes.includes('elite eight')||notes.includes('regional final');
+    if      (isNCG&&wn) { ch=wn; sm.add(wn); if(ln)sm.add(ln); ff.add(wn); if(ln)ff.add(ln); }
+    else if (isFF &&wn) { sm.add(wn); ff.add(wn); if(ln)ff.add(ln); }
+    else if (isEE &&wn) { ff.add(wn); }
+  }
+  S.ff=[...ff].filter(Boolean);
+  S.semis=[...sm].filter(Boolean);
+  S.champ=ch;
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const sc = allScores();
+  renderTicker(sc);
+  renderLeaderboard(sc);
+  renderPickGrid(sc);
+  renderConsensus();
+  renderMatrix();
+  renderInsights(sc);
+  renderStrip();
+}
+
+function renderTicker(sc) {
+  ORDER.forEach(id => {
+    const el=document.getElementById('t-'+id);
+    if(el) el.textContent=sc[id].pts>0?sc[id].pts:'—';
+  });
+}
+
+function renderLeaderboard(sc) {
+  const sorted=[...ORDER].sort((a,b)=>sc[b].pts-sc[a].pts);
+  document.getElementById('lb-podium').innerHTML=sorted.map((id,i)=>{
+    const p=PICKS[id], s=sc[id].pts, pct=Math.round(s/MAX*100);
+    const cd=sc[id].d.champ;
+    return `<div class="lb-card rank-${i+1}${i===0?' leader':''}">
+      <div class="lb-card-rank">${i+1}</div>
+      <div class="lb-card-ai"><div class="lb-card-dot" style="background:${p.color}"></div><div class="lb-card-name" style="color:${p.color}">${p.name}</div></div>
+      <div class="lb-card-score" style="color:${i===0?'var(--gold)':'var(--text)'}">${s>0?s:'—'}</div>
+      <div class="lb-card-max">/ ${MAX} pts${s>0?' · '+pct+'%':''}</div>
+      <div class="lb-bar-wrap"><div class="lb-bar-fill" style="background:${p.color}" data-w="${pct}"></div></div>
+      <div class="lb-champ-tag">Pick: <strong>${p.champ}</strong>${cd==='correct'?' ✓':cd==='incorrect'?' ✗':''}</div>
+    </div>`;
+  }).join('');
+  setTimeout(()=>{ document.querySelectorAll('.lb-bar-fill').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); },60);
+}
+
+function renderPickGrid(sc) {
+  document.getElementById('pick-grid').innerHTML=ORDER.map(id=>{
+    const p=PICKS[id], d=sc[id].d;
+    const ffRows=Object.entries(p.ff).map(([r,team])=>{
+      const st=d.ff[r]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
+      return `<div class="pick-row"><span class="pick-region">${r.charAt(0).toUpperCase()+r.slice(1)}</span><span class="pick-team ${st}">${team}</span><div class="pick-badge ${st}">${b}</div></div>`;
+    }).join('');
+    const sfRows=p.sf.map((team,i)=>{
+      const st=d.sf[i]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
+      return `<div class="pick-row"><span class="pick-region">SF ${i+1}</span><span class="pick-team ${st}">${team}</span><div class="pick-badge ${st}">${b}</div></div>`;
+    }).join('');
+    const cs=d.champ||'pending', champColor=cs==='pending'?`color:${p.color}`:'';
+    return `<div class="pick-card">
+      <div class="pc-head">
+        <div class="pc-logo" style="background:${p.color}1a;color:${p.color}">${p.initial}</div>
+        <div><div class="pc-name">${p.name}</div><div class="pc-model">${p.model}</div></div>
+        <div class="pc-score-badge">${sc[id].pts>0?sc[id].pts:'—'}</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-section-label">Final Four</div>${ffRows}
+        <div class="pick-section-gap"></div>
+        <div class="pc-section-label">Semifinals</div>${sfRows}
+        <div class="pc-champ-row">
+          <span class="pc-champ-label">Champion</span>
+          <span class="pc-champ-name ${cs}" style="${champColor}">${p.champ}</span>
+          <div class="pick-badge ${cs}">${cs==='correct'?'✓':cs==='incorrect'?'✗':'·'}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderConsensus() {
+  const aiChamps=[...new Set(ORDER.map(id=>PICKS[id].champ))].sort((a,b)=>(PUB_PCT[b]||0)-(PUB_PCT[a]||0));
+  document.getElementById('consensus-bars').innerHTML=aiChamps.map(team=>{
+    const pct=PUB_PCT[team]||0;
+    const pickers=ORDER.filter(id=>PICKS[id].champ===team);
+    const color=pickers.length?PICKS[pickers[0]].color:'var(--muted)';
+    const dots=pickers.map(id=>`<div class="consensus-ai-dot" style="background:${PICKS[id].color}22;color:${PICKS[id].color}">${PICKS[id].initial}</div>`).join('');
+    const chk=S.champ?(S.champ.toLowerCase()===team.toLowerCase()?' ✓':''):'';
+    return `<div class="consensus-item">
+      <div class="consensus-head"><span class="consensus-team">${team}${chk}</span><span class="consensus-pct">${pct}% public</span></div>
+      <div class="consensus-bar-track"><div class="consensus-bar-fill" style="background:${color}" data-w="${pct}"></div></div>
+      <div class="consensus-ais">${dots}</div>
+    </div>`;
+  }).join('');
+  setTimeout(()=>{ document.querySelectorAll('.consensus-bar-fill').forEach(el=>el.style.width=el.dataset.w+'%'); },80);
+}
+
+function renderMatrix() {
+  const regions=['east','west','midwest','south'];
+  const hdr=`<thead><tr><th></th>${ORDER.map(id=>`<th style="color:${PICKS[id].color}">${PICKS[id].name}</th>`).join('')}</tr></thead>`;
+  const bodyRows=regions.map(r=>{
+    const cells=ORDER.map(id=>{
+      const team=PICKS[id].ff[r];
+      const cnt=ORDER.filter(oid=>PICKS[oid].ff[r]===team).length;
+      return `<td class="${cnt>=3?'cell-agree':cnt===1?'cell-disagree':''}">${team}</td>`;
+    }).join('');
+    return `<tr><td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:10px">${r.charAt(0).toUpperCase()+r.slice(1)}</td>${cells}</tr>`;
+  });
+  // Champ row
+  const champCells=ORDER.map(id=>{
+    const team=PICKS[id].champ;
+    const cnt=ORDER.filter(oid=>PICKS[oid].champ===team).length;
+    return `<td class="${cnt>=3?'cell-agree':cnt===1?'cell-disagree':''}"><strong>${team}</strong></td>`;
+  }).join('');
+  bodyRows.push(`<tr style="border-top:1px solid var(--border2)"><td style="color:var(--accent);font-family:'DM Mono',monospace;font-size:10px">Champ</td>${champCells}</tr>`);
+  // Consensus row
+  const consCells=ORDER.map(id=>{
+    let agree=0;
+    regions.forEach(r=>{
+      const myT=PICKS[id].ff[r];
+      const myCnt=ORDER.filter(x=>PICKS[x].ff[r]===myT).length;
+      const maxCnt=Math.max(...ORDER.map(oid=>ORDER.filter(x=>PICKS[x].ff[r]===PICKS[oid].ff[r]).length));
+      if(myCnt===maxCnt) agree++;
+    });
+    const myC=PICKS[id].champ;
+    const maxC=Math.max(...ORDER.map(oid=>ORDER.filter(x=>PICKS[x].champ===PICKS[oid].champ).length));
+    if(ORDER.filter(x=>PICKS[x].champ===myC).length===maxC) agree++;
+    return `<td><span class="tag ${agree>=4?'tag-agree':agree<=2?'tag-disagree':''}">${agree}/5</span></td>`;
+  }).join('');
+  bodyRows.push(`<tr><td style="color:var(--dim);font-size:10px;font-family:'DM Mono',monospace">Agree</td>${consCells}</tr>`);
+  document.getElementById('agreement-matrix').innerHTML=hdr+`<tbody>${bodyRows.join('')}</tbody>`;
+}
+
+function renderInsights(sc) {
+  const arizonaCnt=ORDER.filter(id=>Object.values(PICKS[id].ff).includes('Arizona')).length;
+  const uniqueChamps=new Set(ORDER.map(id=>PICKS[id].champ)).size;
+  const mostContra=ORDER.reduce((best,id)=>(PUB_PCT[PICKS[id].champ]||0)<(PUB_PCT[PICKS[best].champ]||0)?id:best);
+  document.getElementById('insights-grid').innerHTML=`
+    <div class="insight-card">
+      <div class="insight-num">${arizonaCnt}/4</div>
+      <div class="insight-label">AIs picked <strong>Arizona</strong> in their Final Four — the only unanimous pick across all four models</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">${uniqueChamps}</div>
+      <div class="insight-label">Different champion picks — every AI picked a <strong>unique winner</strong>, making this a true four-way battle</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">${PUB_PCT[PICKS[mostContra].champ]||'?'}%</div>
+      <div class="insight-label"><strong>${PICKS[mostContra].name}</strong> was most contrarian — only ${PUB_PCT[PICKS[mostContra].champ]||'?'}% of the public backed <strong>${PICKS[mostContra].champ}</strong></div>
+    </div>`;
+}
+
+function renderStrip() {
+  const parts=[];
+  if(S.ff.length)   parts.push(`<strong>Final Four:</strong> ${S.ff.join(', ')}`);
+  if(S.semis.length) parts.push(`<strong>Title game:</strong> ${S.semis.join(' vs ')}`);
+  if(S.champ)        parts.push(`<strong>Champion:</strong> ${S.champ} 🏆`);
+  document.getElementById('rs-content').innerHTML=parts.length?parts.join(' &nbsp;·&nbsp; '):'No results confirmed yet — tournament in progress';
+}
+
+// ─── STATUS ────────────────────────────────────────────────────────────────
+function setStatus(s) {
+  const dot=document.getElementById('live-dot'), lbl=document.getElementById('live-label');
+  dot.className='live-dot';
+  if(s==='loading'){ dot.classList.add('loading'); lbl.textContent='Fetching…'; }
+  else if(s==='live'){ lbl.textContent='ESPN · '+new Date().toLocaleTimeString(); }
+  else if(s==='error'){ dot.classList.add('error'); lbl.textContent='API unavailable'; }
+  else if(s==='manual'){ dot.classList.add('loading'); lbl.textContent='Manual override'; }
+}
+
+// ─── OVERRIDE ──────────────────────────────────────────────────────────────
+function openOverride() {
+  document.getElementById('override-input').value=JSON.stringify({finalFour:S.ff,semis:S.semis,champion:S.champ||''},null,2);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeOverride(e) {
+  if(!e||e.target===document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+function applyOverride() {
+  try {
+    const v=JSON.parse(document.getElementById('override-input').value);
+    if(v.finalFour) S.ff=v.finalFour.map(N).filter(Boolean);
+    if(v.semis)     S.semis=v.semis.map(N).filter(Boolean);
+    if(v.champion!==undefined) S.champ=v.champion?N(v.champion):null;
+    S.status='manual'; closeOverride(); render(); setStatus('manual');
+    toast('Override applied ✓');
+  } catch(e){ toast('Invalid JSON: '+e.message); }
+}
+
+// ─── EXPORT ────────────────────────────────────────────────────────────────
+function doExport() {
+  const sc=allScores();
+  const sorted=[...ORDER].sort((a,b)=>sc[b].pts-sc[a].pts);
+  const lines=['=== AI BRACKET BATTLE 2026 ===',`Exported: ${new Date().toLocaleString()}`,'','--- STANDINGS ---',
+    ...sorted.map((id,i)=>`${i+1}. ${PICKS[id].name}: ${sc[id].pts} pts — Champion pick: ${PICKS[id].champ}`),
+    '','--- CONFIRMED RESULTS ---',
+    `Final Four: ${S.ff.join(', ')||'TBD'}`,
+    `Title game: ${S.semis.join(' vs ')||'TBD'}`,
+    `Champion: ${S.champ||'TBD'}`,
+  ];
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain'}));
+  a.download='ai-bracket-battle-2026.txt'; a.click();
+}
+
+// ─── TOAST ─────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ─── BOOT ──────────────────────────────────────────────────────────────────
+render();
+doFetch();
+setInterval(doFetch, 60_000);
+</script>
+</body>
+</html>
