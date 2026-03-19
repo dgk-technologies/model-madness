@@ -2,7 +2,7 @@
 // Returns Supabase config from environment variables
 // Works with both manual env vars and Vercel-Supabase integration
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   // Check both naming conventions (manual and Vercel integration)
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

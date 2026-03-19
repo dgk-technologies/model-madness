@@ -2,7 +2,7 @@
 // Runs every 5 minutes during tournament, configurable in vercel.json
 // Requires SUPABASE_SERVICE_ROLE_KEY env var for write access
 
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
 
@@ -20,7 +20,7 @@ const NORM = {
 
 const normalize = (s) => s ? (NORM[s.toLowerCase().trim()] || s.trim()) : '';
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Verify this is a cron request or has auth
   const authHeader = req.headers.authorization;
   const cronSecret = process.env.CRON_SECRET;
