@@ -232,10 +232,19 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-grid.rtl * { direction:ltr; }
 /* Team slot */
 .bracket-slot { display:flex; align-items:center; padding:2px 0; }
-.bracket-team { width:100%; font-size:10px; padding:3px 6px; background:var(--s2); border:1px solid var(--border); border-radius:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:all .15s; }
+.bracket-team { width:100%; font-size:10px; padding:3px 6px; background:var(--s2); border:1px solid var(--border); border-radius:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:all .15s; display:flex; align-items:center; gap:4px; }
 .bracket-team:hover { background:var(--s3); }
-.bracket-team.winner { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); font-weight:600; }
-.bracket-team.loser { color:var(--dim); opacity:.65; }
+.bracket-team .icon { font-size:11px; flex-shrink:0; }
+/* Correct pick - green with checkmark */
+.bracket-team.correct { background:rgba(74,222,128,.15); border-color:rgba(74,222,128,.5); color:#4ade80; font-weight:600; }
+.bracket-team.correct .icon { color:#22c55e; }
+/* Incorrect pick - red with X */
+.bracket-team.incorrect { background:rgba(248,113,113,.12); border-color:rgba(248,113,113,.4); color:#f87171; }
+.bracket-team.incorrect .icon { color:#ef4444; }
+/* Pending - not yet played */
+.bracket-team.pending { background:var(--s2); border-color:var(--border); color:var(--text); }
+/* Eliminated in bracket flow (lost earlier) */
+.bracket-team.out { color:var(--dim); opacity:.5; font-style:italic; }
 /* Connector lines (bracket forks) */
 .bracket-conn { display:flex; align-items:center; }
 .bracket-fork { width:100%; height:50%; box-sizing:border-box; }
@@ -1459,11 +1468,25 @@ function selectBracket(id) {
 function renderBracket(aiId, sc) {
   const p = PICKS[aiId];
   const d = sc[aiId].d;
-  const cls = (st) => st === 'correct' ? 'correct' : st === 'incorrect' ? 'incorrect' : '';
+
+  // Check if AI pick matches actual result
+  // Returns: 'correct' (✓), 'incorrect' (✗), or 'pending' (-)
+  const getStatus = (round, region, team, idx) => {
+    const actual = S.winners[round]?.[region] || [];
+    if (!actual.length) return 'pending';
+    const normalTeam = team.toLowerCase().trim();
+    const isCorrect = actual.some(w => w.toLowerCase().trim() === normalTeam);
+    return isCorrect ? 'correct' : 'incorrect';
+  };
+
+  // Icon for status
+  const icon = (status) => {
+    if (status === 'correct') return '<span class="icon">✓</span>';
+    if (status === 'incorrect') return '<span class="icon">✗</span>';
+    return '';
+  };
 
   // Build CSS Grid bracket for a region
-  // 7 columns: R64, conn, R32, conn, S16, conn, E8
-  // 16 rows (8 R64 matchups × 2 teams each)
   const buildRegion = (region, label, isRtl) => {
     const r64 = p.r64[region] || [];
     const r32 = p.r32[region] || [];
@@ -1473,47 +1496,51 @@ function renderBracket(aiId, sc) {
     let cells = '';
     const forkDir = isRtl ? 'rtl' : 'ltr';
 
-    // Column 1: R64 teams (8 teams, each in 2 rows)
+    // Column 1: R64 picks
     r64.forEach((team, i) => {
       const row = i * 2 + 1;
-      const isWinner = r32.includes(team);
-      const winCls = isWinner ? 'winner' : 'loser';
-      cells += `<div class="bracket-slot" style="grid-column:1;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+      const status = getStatus('r64', region, team, i);
+      const advances = r32.includes(team);
+      const cls = status + (status === 'incorrect' && !advances ? ' out' : '');
+      cells += `<div class="bracket-slot" style="grid-column:1;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
     });
 
-    // Column 2: Connectors R64→R32 (4 forks, each spans 4 rows)
+    // Column 2: Connectors R64→R32
     for (let i = 0; i < 4; i++) {
       const row = i * 4 + 1;
       cells += `<div class="bracket-conn" style="grid-column:2;grid-row:${row}/span 4"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Column 3: R32 teams (4 teams, each in 4 rows)
+    // Column 3: R32 picks
     r32.forEach((team, i) => {
       const row = i * 4 + 2;
-      const isWinner = s16.includes(team);
-      const winCls = isWinner ? 'winner' : 'loser';
-      cells += `<div class="bracket-slot" style="grid-column:3;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+      const status = getStatus('r32', region, team, i);
+      const advances = s16.includes(team);
+      const cls = status + (status === 'incorrect' && !advances ? ' out' : '');
+      cells += `<div class="bracket-slot" style="grid-column:3;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
     });
 
-    // Column 4: Connectors R32→S16 (2 forks, each spans 8 rows)
+    // Column 4: Connectors R32→S16
     for (let i = 0; i < 2; i++) {
       const row = i * 8 + 1;
       cells += `<div class="bracket-conn" style="grid-column:4;grid-row:${row}/span 8"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Column 5: S16 teams (2 teams, each in 8 rows)
+    // Column 5: S16 picks
     s16.forEach((team, i) => {
       const row = i * 8 + 4;
-      const isWinner = team === e8;
-      const winCls = isWinner ? 'winner' : 'loser';
-      cells += `<div class="bracket-slot" style="grid-column:5;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+      const status = getStatus('s16', region, team, i);
+      const advances = team === e8;
+      const cls = status + (status === 'incorrect' && !advances ? ' out' : '');
+      cells += `<div class="bracket-slot" style="grid-column:5;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
     });
 
-    // Column 6: Connector S16→E8 (1 fork, spans 16 rows)
+    // Column 6: Connector S16→E8
     cells += `<div class="bracket-conn" style="grid-column:6;grid-row:1/span 16"><div class="bracket-fork ${forkDir}"></div></div>`;
 
-    // Column 7: E8 winner (1 team, centered)
-    cells += `<div class="bracket-slot" style="grid-column:7;grid-row:8/span 2"><div class="bracket-team winner">${e8}</div></div>`;
+    // Column 7: E8 pick
+    const e8Status = getStatus('e8', region, e8, 0);
+    cells += `<div class="bracket-slot" style="grid-column:7;grid-row:8/span 2"><div class="bracket-team ${e8Status}">${icon(e8Status)}${e8}</div></div>`;
 
     const rtlCls = isRtl ? ' rtl' : '';
     const headerCls = isRtl ? ' right' : '';
@@ -1523,9 +1550,10 @@ function renderBracket(aiId, sc) {
     </div>`;
   };
 
-  const ff0St = cls(d.ff?.[0] || 'pending');
-  const ff1St = cls(d.ff?.[1] || 'pending');
-  const champSt = cls(d.champ || 'pending');
+  // Final Four status
+  const ff0St = d.ff?.[0] || 'pending';
+  const ff1St = d.ff?.[1] || 'pending';
+  const champSt = d.champ || 'pending';
   const champClr = champSt === 'correct' ? 'var(--ok)' : champSt === 'incorrect' ? 'var(--bad)' : p.color;
 
   const html = `<div class="bracket-container">
@@ -1533,11 +1561,11 @@ function renderBracket(aiId, sc) {
       ${buildRegion('east', 'EAST', false)}
       <div class="bracket-ff">
         <div class="bracket-ff-label">Final Four</div>
-        <div class="bracket-ff-team ${ff0St}">${p.ff[0]}</div>
+        <div class="bracket-ff-team ${ff0St}">${icon(ff0St)}${p.ff[0]}</div>
         <div class="bracket-ff-label">Champion</div>
-        <div class="bracket-champ ${champSt}" style="color:${champClr}">${p.champ}</div>
+        <div class="bracket-champ ${champSt}" style="color:${champClr}">${icon(champSt)}${p.champ}</div>
         <div class="bracket-ff-label">Final Four</div>
-        <div class="bracket-ff-team ${ff1St}">${p.ff[1]}</div>
+        <div class="bracket-ff-team ${ff1St}">${icon(ff1St)}${p.ff[1]}</div>
       </div>
       ${buildRegion('west', 'WEST', true)}
     </div>
