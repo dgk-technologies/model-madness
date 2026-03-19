@@ -28,9 +28,6 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-bracket@0.11.1/dist/jquery.bracket.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-bracket@0.11.1/dist/jquery.bracket.min.css">
 <style>
 :root {
   --bg: #080809;
@@ -223,31 +220,38 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .bracket-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; overflow-x:auto; }
 
-/* jQuery Bracket Layout */
-.bracket-layout { display:flex; flex-direction:column; gap:32px; min-width:1100px; }
-.bracket-row { display:flex; justify-content:center; align-items:flex-start; gap:20px; }
-.bracket-region-wrap { display:flex; flex-direction:column; gap:8px; }
-.bracket-region-title { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.08em; color:var(--accent); text-align:center; }
-.bracket-region { min-width:420px; }
-/* jQuery Bracket Dark Theme Override - minimal, let library handle layout */
-.jQBracket .bracket { background:transparent !important; }
-.jQBracket .team { background:#1f2937 !important; border-color:#374151 !important; color:#e5e7eb !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; }
-.jQBracket .win .team { background:#14532d !important; border-color:#22c55e !important; color:#86efac !important; }
-.jQBracket .lose .team { color:#6b7280 !important; }
-.jQBracket .label { color:#6b7280 !important; }
-.jQBracket .connector { border-color:#4b5563 !important; }
-.jQBracket .score { display:none !important; }
-/* Final Four center section */
-.bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px; min-width:160px; }
+/* CSS Grid Bracket Layout */
+.bracket-container { display:flex; flex-direction:column; gap:24px; min-width:1200px; }
+.bracket-row { display:flex; justify-content:center; align-items:flex-start; }
+.bracket-region-wrap { display:flex; flex-direction:column; }
+.bracket-region-header { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.06em; color:var(--accent); padding:0 0 6px 8px; border-bottom:2px solid var(--accent); margin-bottom:4px; }
+.bracket-region-header.right { text-align:right; padding:0 8px 6px 0; }
+/* 7-column grid: 4 matchup cols + 3 connector cols */
+.bracket-grid { display:grid; grid-template-columns:minmax(100px,130px) 14px minmax(100px,130px) 14px minmax(100px,130px) 14px minmax(100px,130px); grid-template-rows:repeat(16,24px); gap:0; padding:4px 0; }
+.bracket-grid.rtl { direction:rtl; }
+.bracket-grid.rtl * { direction:ltr; }
+/* Team slot */
+.bracket-slot { display:flex; align-items:center; padding:2px 0; }
+.bracket-team { width:100%; font-size:10px; padding:3px 6px; background:var(--s2); border:1px solid var(--border); border-radius:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:all .15s; }
+.bracket-team:hover { background:var(--s3); }
+.bracket-team.winner { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); font-weight:600; }
+.bracket-team.loser { color:var(--dim); opacity:.65; }
+/* Connector lines (bracket forks) */
+.bracket-conn { display:flex; align-items:center; }
+.bracket-fork { width:100%; height:50%; box-sizing:border-box; }
+.bracket-fork.ltr { border-right:2px solid var(--border2); border-top:2px solid var(--border2); border-bottom:2px solid var(--border2); }
+.bracket-fork.rtl { border-left:2px solid var(--border2); border-top:2px solid var(--border2); border-bottom:2px solid var(--border2); }
+/* Final Four center */
+.bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px 24px; min-width:150px; }
 .bracket-ff-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
-.bracket-ff-team { font-size:13px; font-weight:500; padding:10px 20px; background:var(--s2); border:1px solid var(--border); border-radius:6px; text-align:center; min-width:110px; }
+.bracket-ff-team { font-size:12px; font-weight:500; padding:8px 16px; background:var(--s2); border:1px solid var(--border); border-radius:5px; text-align:center; min-width:100px; }
 .bracket-ff-team.correct { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.35); color:var(--ok); }
 .bracket-ff-team.incorrect { background:rgba(248,113,113,.08); border-color:rgba(248,113,113,.25); color:var(--bad); }
-.bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.04em; padding:12px 20px; background:rgba(251,191,36,.08); border:2px solid rgba(251,191,36,.35); border-radius:6px; margin:8px 0; }
+.bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; padding:10px 18px; background:rgba(251,191,36,.08); border:2px solid rgba(251,191,36,.35); border-radius:6px; margin:6px 0; }
 .bracket-champ.correct { background:rgba(74,222,128,.12); border-color:var(--ok); color:var(--ok); }
 .bracket-champ.incorrect { background:rgba(248,113,113,.1); border-color:var(--bad); color:var(--bad); }
-@media(max-width:1100px) { .bracket-layout { min-width:900px; } .bracket-region { min-width:340px; } }
-@media(max-width:900px) { .bracket-layout { min-width:auto; } .bracket-row { flex-direction:column; align-items:center; } }
+@media(max-width:1200px) { .bracket-container { min-width:1000px; } .bracket-grid { grid-template-columns:minmax(85px,110px) 12px minmax(85px,110px) 12px minmax(85px,110px) 12px minmax(85px,110px); } }
+@media(max-width:1000px) { .bracket-container { min-width:auto; flex-direction:column; } .bracket-row { flex-direction:column; align-items:center; } }
 
 /* RESULTS VIEW */
 .results-view { display:grid; grid-template-columns:280px 1fr; gap:20px; }
@@ -1457,51 +1461,76 @@ function renderBracket(aiId, sc) {
   const d = sc[aiId].d;
   const cls = (st) => st === 'correct' ? 'correct' : st === 'incorrect' ? 'incorrect' : '';
 
-  // Build jQuery Bracket data for a region
-  const buildRegionData = (region) => {
+  // Build CSS Grid bracket for a region
+  // 7 columns: R64, conn, R32, conn, S16, conn, E8
+  // 16 rows (8 R64 matchups × 2 teams each)
+  const buildRegion = (region, label, isRtl) => {
     const r64 = p.r64[region] || [];
     const r32 = p.r32[region] || [];
     const s16 = p.s16[region] || [];
     const e8 = p.e8[region];
 
-    // Pair R64 winners into matchups for "Round 1" display
-    const teams = [];
-    for (let i = 0; i < 8; i += 2) {
-      teams.push([r64[i] || 'TBD', r64[i+1] || 'TBD']);
-    }
+    let cells = '';
+    const forkDir = isRtl ? 'rtl' : 'ltr';
 
-    // Build results: who won each matchup
-    // Round 1: R64 pairs → R32 winners
-    const round1 = [];
+    // Column 1: R64 teams (8 teams, each in 2 rows)
+    r64.forEach((team, i) => {
+      const row = i * 2 + 1;
+      const isWinner = r32.includes(team);
+      const winCls = isWinner ? 'winner' : 'loser';
+      cells += `<div class="bracket-slot" style="grid-column:1;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+    });
+
+    // Column 2: Connectors R64→R32 (4 forks, each spans 4 rows)
     for (let i = 0; i < 4; i++) {
-      const t1 = teams[i][0], t2 = teams[i][1];
-      const winner = r32[i];
-      round1.push([t1 === winner ? 1 : 0, t2 === winner ? 1 : 0]);
+      const row = i * 4 + 1;
+      cells += `<div class="bracket-conn" style="grid-column:2;grid-row:${row}/span 4"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Round 2: R32 pairs → S16 winners
-    const round2 = [];
+    // Column 3: R32 teams (4 teams, each in 4 rows)
+    r32.forEach((team, i) => {
+      const row = i * 4 + 2;
+      const isWinner = s16.includes(team);
+      const winCls = isWinner ? 'winner' : 'loser';
+      cells += `<div class="bracket-slot" style="grid-column:3;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+    });
+
+    // Column 4: Connectors R32→S16 (2 forks, each spans 8 rows)
     for (let i = 0; i < 2; i++) {
-      const t1 = r32[i*2], t2 = r32[i*2+1];
-      const winner = s16[i];
-      round2.push([t1 === winner ? 1 : 0, t2 === winner ? 1 : 0]);
+      const row = i * 8 + 1;
+      cells += `<div class="bracket-conn" style="grid-column:4;grid-row:${row}/span 8"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Round 3: S16 → E8 winner
-    const round3 = [[s16[0] === e8 ? 1 : 0, s16[1] === e8 ? 1 : 0]];
+    // Column 5: S16 teams (2 teams, each in 8 rows)
+    s16.forEach((team, i) => {
+      const row = i * 8 + 4;
+      const isWinner = team === e8;
+      const winCls = isWinner ? 'winner' : 'loser';
+      cells += `<div class="bracket-slot" style="grid-column:5;grid-row:${row}/span 2"><div class="bracket-team ${winCls}">${team}</div></div>`;
+    });
 
-    return { teams, results: [[round1, round2, round3]] };
+    // Column 6: Connector S16→E8 (1 fork, spans 16 rows)
+    cells += `<div class="bracket-conn" style="grid-column:6;grid-row:1/span 16"><div class="bracket-fork ${forkDir}"></div></div>`;
+
+    // Column 7: E8 winner (1 team, centered)
+    cells += `<div class="bracket-slot" style="grid-column:7;grid-row:8/span 2"><div class="bracket-team winner">${e8}</div></div>`;
+
+    const rtlCls = isRtl ? ' rtl' : '';
+    const headerCls = isRtl ? ' right' : '';
+    return `<div class="bracket-region-wrap">
+      <div class="bracket-region-header${headerCls}">${label}</div>
+      <div class="bracket-grid${rtlCls}">${cells}</div>
+    </div>`;
   };
 
-  // Create HTML structure
   const ff0St = cls(d.ff?.[0] || 'pending');
   const ff1St = cls(d.ff?.[1] || 'pending');
   const champSt = cls(d.champ || 'pending');
   const champClr = champSt === 'correct' ? 'var(--ok)' : champSt === 'incorrect' ? 'var(--bad)' : p.color;
 
-  const html = `<div class="bracket-layout">
+  const html = `<div class="bracket-container">
     <div class="bracket-row">
-      <div class="bracket-region-wrap"><div class="bracket-region-title">EAST</div><div class="bracket-region" id="jqb-east"></div></div>
+      ${buildRegion('east', 'EAST', false)}
       <div class="bracket-ff">
         <div class="bracket-ff-label">Final Four</div>
         <div class="bracket-ff-team ${ff0St}">${p.ff[0]}</div>
@@ -1510,34 +1539,16 @@ function renderBracket(aiId, sc) {
         <div class="bracket-ff-label">Final Four</div>
         <div class="bracket-ff-team ${ff1St}">${p.ff[1]}</div>
       </div>
-      <div class="bracket-region-wrap"><div class="bracket-region-title">WEST</div><div class="bracket-region" id="jqb-west"></div></div>
+      ${buildRegion('west', 'WEST', true)}
     </div>
     <div class="bracket-row">
-      <div class="bracket-region-wrap"><div class="bracket-region-title">SOUTH</div><div class="bracket-region" id="jqb-south"></div></div>
-      <div style="min-width:160px"></div>
-      <div class="bracket-region-wrap"><div class="bracket-region-title">MIDWEST</div><div class="bracket-region" id="jqb-midwest"></div></div>
+      ${buildRegion('south', 'SOUTH', false)}
+      <div style="min-width:150px"></div>
+      ${buildRegion('midwest', 'MIDWEST', true)}
     </div>
   </div>`;
 
   document.getElementById('bracket-viz').innerHTML = html;
-
-  // Initialize jQuery Bracket for each region
-  const regions = ['east', 'west', 'south', 'midwest'];
-  regions.forEach(region => {
-    const data = buildRegionData(region);
-    try {
-      $(`#jqb-${region}`).bracket({
-        init: data,
-        skipConsolationRound: true,
-        teamWidth: 90,
-        scoreWidth: 0,
-        matchMargin: 20,
-        roundMargin: 20
-      });
-    } catch(e) {
-      console.warn('jQuery Bracket error:', region, e);
-    }
-  });
 }
 
 function renderResults() {
