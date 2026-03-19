@@ -181,7 +181,7 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .pick-card:nth-child(4){ animation-delay:.21s; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
 .pc-head { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
-.pc-logo { width:34px; height:34px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:13px; font-weight:500; }
+.pc-logo { width:38px; height:34px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:12px; font-weight:500; letter-spacing:-0.5px; }
 .pc-name { font-size:13px; font-weight:500; }
 .pc-model { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); }
 .pc-score-badge { margin-left:auto; font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; color:var(--gold); min-width:28px; text-align:right; transition:all .3s; }
@@ -214,10 +214,10 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 /* BRACKET VIZ */
 .bracket-section { margin-bottom:48px; }
 .bracket-tabs { display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap; }
-.bracket-tab { background:var(--s1); border:1px solid var(--border); border-radius:6px; padding:8px 16px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; }
-.bracket-tab:hover { border-color:var(--border2); }
-.bracket-tab.active { background:var(--s2); border-color:var(--accent); color:var(--accent); }
-.bracket-tab-dot { width:8px; height:8px; border-radius:50%; }
+.bracket-tab { background:var(--s1); border:1px solid var(--border); border-radius:6px; padding:8px 16px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; color:var(--muted); }
+.bracket-tab:hover { border-color:var(--border2); color:var(--text); }
+.bracket-tab.active { background:var(--s2); border-color:var(--accent); }
+.bracket-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .bracket-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; overflow-x:auto; }
 .bracket { display:flex; gap:24px; min-width:700px; justify-content:center; align-items:center; }
 .bracket-round { display:flex; flex-direction:column; gap:16px; }
@@ -504,7 +504,7 @@ footer { border-top:1px solid var(--border); }
 
 const PICKS = {
   claude: {
-    name:'Claude', model:'Sonnet 4.6', color:'#cc785c', initial:'C',
+    name:'Claude', model:'Sonnet 4.6', color:'#cc785c', initial:'Cl',
     // Round of 64 (32 games) - 8 per region
     r64: {
       east: ['Duke','Ohio State','St. John\'s','Kansas','South Florida','Michigan State','UCLA','UConn'],
@@ -535,7 +535,7 @@ const PICKS = {
     note: 'Defending champs. Top rebounding margin in the country (+14.5). Frontcourt depth.',
   },
   chatgpt: {
-    name:'ChatGPT', model:'GPT-4o', color:'#10a37f', initial:'G',
+    name:'ChatGPT', model:'GPT-4o', color:'#10a37f', initial:'Gp',
     r64: {
       east: ['Duke','Ohio State','St. John\'s','Kansas','Louisville','Michigan State','UCLA','UConn'],
       west: ['Arizona','Utah State','Wisconsin','Arkansas','Texas','Gonzaga','Missouri','Purdue'],
@@ -560,7 +560,7 @@ const PICKS = {
     note: "Been here, know how to close. Classic offense vs defense title game vs Houston.",
   },
   gemini: {
-    name:'Gemini', model:'2.5 Pro', color:'#5f8df0', initial:'G',
+    name:'Gemini', model:'2.5 Pro', color:'#5f8df0', initial:'Ge',
     r64: {
       east: ['Duke','Ohio State','St. John\'s','Kansas','South Florida','Michigan State','UCLA','UConn'],
       west: ['Arizona','Villanova','Wisconsin','Arkansas','BYU','Gonzaga','Miami','Iowa State'],
@@ -585,7 +585,7 @@ const PICKS = {
     note: 'Cooper Flagg + NBA-level depth. Cuts down the nets in Indy like 2010 & 2015.',
   },
   grok: {
-    name:'Grok', model:'Grok 3', color:'#c8d0e0', initial:'X',
+    name:'Grok', model:'Grok 3', color:'#c8d0e0', initial:'Gr',
     r64: {
       east: ['Duke','TCU','St. John\'s','Kansas','Louisville','Michigan State','UCLA','UConn'],
       west: ['Arizona','Villanova','Wisconsin','Arkansas','BYU','Gonzaga','Miami','Purdue'],
@@ -1378,7 +1378,9 @@ function renderStrip() {
 function renderBracketTabs() {
   document.getElementById('bracket-tabs').innerHTML = ORDER.map(id => {
     const p = PICKS[id];
-    return `<button class="bracket-tab${currentBracketAI===id?' active':''}" onclick="selectBracket('${id}')">
+    const isActive = currentBracketAI === id;
+    const textStyle = isActive ? 'color:var(--accent)' : `color:${p.color}`;
+    return `<button class="bracket-tab${isActive?' active':''}" onclick="selectBracket('${id}')" style="${textStyle}">
       <div class="bracket-tab-dot" style="background:${p.color}"></div>
       ${p.name}
     </button>`;
