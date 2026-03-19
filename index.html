@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Model Madness 2026</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LTB7D31BY1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LTB7D31BY1');
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -339,7 +347,7 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
   </div>
 </footer>
 <div style="text-align:center;padding:16px 24px 32px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.04em;">
-  Built with love using <a href="https://claude.ai/claude-code" style="color:var(--claude);text-decoration:none;">Claude Code</a>
+  Built with love using <a href="https://claude.ai/code?utm_source=modelmadness&utm_medium=referral&utm_campaign=footer" style="color:var(--claude);text-decoration:none;" target="_blank" rel="noopener">Claude Code</a>
 </div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="closeOverride(event)">
@@ -531,7 +539,13 @@ function shareToX() {
 
   text += `\n\nTrack the AI bracket battle live:`;
 
-  const url = encodeURIComponent(window.location.href);
+  // Track share event in GA
+  if (typeof gtag === 'function') {
+    gtag('event', 'share', { method: 'twitter', content_type: 'standings' });
+  }
+
+  const shareUrl = 'https://modelmadness.ai/?utm_source=twitter&utm_medium=social&utm_campaign=share';
+  const url = encodeURIComponent(shareUrl);
   const tweet = encodeURIComponent(text);
   window.open(`https://twitter.com/intent/tweet?text=${tweet}&url=${url}`, '_blank', 'width=550,height=420');
 }
@@ -920,6 +934,10 @@ function applyOverride() {
 
 // ─── EXPORT ────────────────────────────────────────────────────────────────
 function doExport() {
+  // Track export event in GA
+  if (typeof gtag === 'function') {
+    gtag('event', 'file_download', { file_name: 'model-madness-2026.txt' });
+  }
   const sc=allScores();
   const sorted=[...ORDER].sort((a,b)=>sc[b].pts-sc[a].pts);
   const lines=['=== MODEL MADNESS 2026 ===',`Exported: ${new Date().toLocaleString()}`,'','--- STANDINGS ---',
