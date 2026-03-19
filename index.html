@@ -4,7 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Model Madness 2026</title>
+<meta name="description" content="Four AI models predict the NCAA Tournament. Claude, ChatGPT, Gemini, and Grok battle it out. Who called it?">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://modelmadness.ai/">
+<meta property="og:title" content="Model Madness 2026">
+<meta property="og:description" content="Four AI models predict the NCAA Tournament. Claude, ChatGPT, Gemini, and Grok battle it out. Who called it?">
+<meta property="og:image" content="https://modelmadness.ai/api/og">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://modelmadness.ai/">
+<meta name="twitter:title" content="Model Madness 2026">
+<meta name="twitter:description" content="Four AI models predict the NCAA Tournament. Claude, ChatGPT, Gemini, and Grok battle it out. Who called it?">
+<meta name="twitter:image" content="https://modelmadness.ai/api/og">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-LTB7D31BY1"></script>
 <script>
@@ -646,7 +659,7 @@ async function fetchLivePickPct() {
       }
     }
   } catch(e) {
-    console.warn('Live pick % unavailable:', e);
+    // ESPN endpoint blocks CORS - this is expected, using hardcoded fallback
   }
 }
 
