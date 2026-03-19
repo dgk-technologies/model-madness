@@ -1394,23 +1394,19 @@ function selectBracket(id) {
 function renderBracket(aiId, sc) {
   const p = PICKS[aiId];
   const d = sc[aiId].d;
-  const ffLow = S.ff.map(t=>t.toLowerCase());
-  const sfLow = S.semis.map(t=>t.toLowerCase());
 
   // Get team status (correct, incorrect, or pending)
+  // e8 = Elite 8 winners (Final Four teams per region)
+  // ff = Final Four winners (2 teams going to championship)
   const teamStatus = (team, type, region) => {
-    if (type === 'ff') return d.ff[region] || 'pending';
-    if (type === 'sf') {
-      const idx = p.sf.indexOf(team);
-      return idx !== -1 ? (d.sf[idx] || 'pending') : 'pending';
+    if (type === 'e8') return d.e8?.[region] || 'pending';
+    if (type === 'ff') {
+      const idx = p.ff.indexOf(team);
+      return idx !== -1 ? (d.ff?.[idx] || 'pending') : 'pending';
     }
     if (type === 'champ') return d.champ || 'pending';
     return 'pending';
   };
-
-  // Regional winners (E8 -> FF)
-  const regions = ['east', 'west', 'midwest', 'south'];
-  const regionLabels = { east: 'East', west: 'West', midwest: 'Midwest', south: 'South' };
 
   // Build bracket HTML
   const html = `
@@ -1418,10 +1414,10 @@ function renderBracket(aiId, sc) {
     <div class="bracket-round">
       <div class="bracket-round-label">Elite 8</div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.ff.east, 'ff', 'east')}">${p.ff.east}<span class="bracket-seed">East</span></div>
+        <div class="bracket-team ${teamStatus(p.e8.east, 'e8', 'east')}">${p.e8.east}<span class="bracket-seed">East</span></div>
       </div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.ff.west, 'ff', 'west')}">${p.ff.west}<span class="bracket-seed">West</span></div>
+        <div class="bracket-team ${teamStatus(p.e8.west, 'e8', 'west')}">${p.e8.west}<span class="bracket-seed">West</span></div>
       </div>
     </div>
 
@@ -1430,7 +1426,7 @@ function renderBracket(aiId, sc) {
     <div class="bracket-round">
       <div class="bracket-round-label">Final Four</div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.sf[0], 'sf', null)}">${p.sf[0]}</div>
+        <div class="bracket-team ${teamStatus(p.ff[0], 'ff', null)}">${p.ff[0]}</div>
       </div>
     </div>
 
@@ -1448,7 +1444,7 @@ function renderBracket(aiId, sc) {
     <div class="bracket-round">
       <div class="bracket-round-label">Final Four</div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.sf[1], 'sf', null)}">${p.sf[1]}</div>
+        <div class="bracket-team ${teamStatus(p.ff[1], 'ff', null)}">${p.ff[1]}</div>
       </div>
     </div>
 
@@ -1458,10 +1454,10 @@ function renderBracket(aiId, sc) {
     <div class="bracket-round">
       <div class="bracket-round-label">Elite 8</div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.ff.midwest, 'ff', 'midwest')}">${p.ff.midwest}<span class="bracket-seed">MW</span></div>
+        <div class="bracket-team ${teamStatus(p.e8.midwest, 'e8', 'midwest')}">${p.e8.midwest}<span class="bracket-seed">MW</span></div>
       </div>
       <div class="bracket-match">
-        <div class="bracket-team ${teamStatus(p.ff.south, 'ff', 'south')}">${p.ff.south}<span class="bracket-seed">South</span></div>
+        <div class="bracket-team ${teamStatus(p.e8.south, 'e8', 'south')}">${p.e8.south}<span class="bracket-seed">South</span></div>
       </div>
     </div>
   `;
