@@ -134,10 +134,14 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .lb-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:48px; }
 .lb-podium { display:grid; grid-template-columns:repeat(4,1fr); }
 @media(max-width:700px){ .lb-podium{grid-template-columns:repeat(2,1fr);} }
-.lb-card { padding:24px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; overflow:hidden; transition:background .2s; }
+.lb-card { padding:24px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); }
 .lb-card:last-child { border-right:none; }
 .lb-card.leader { background:var(--s2); }
-.lb-card-rank { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; margin-bottom:8px; color:var(--dim); transition:color .4s; }
+.lb-card.rank-up { animation:rankUp .6s ease; }
+.lb-card.rank-down { animation:rankDown .6s ease; }
+@keyframes rankUp { 0%{transform:scale(1)} 30%{transform:scale(1.03);box-shadow:0 0 20px rgba(74,222,128,.2)} 100%{transform:scale(1)} }
+@keyframes rankDown { 0%{transform:scale(1)} 30%{transform:scale(.97);opacity:.8} 100%{transform:scale(1);opacity:1} }
+.lb-card-rank { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; margin-bottom:8px; color:var(--dim); transition:all .4s; }
 .lb-card.rank-1 .lb-card-rank { color:var(--gold); }
 .lb-card.rank-2 .lb-card-rank { color:#a8a8a8; }
 .lb-card.rank-3 .lb-card-rank { color:#9a7d55; }
@@ -200,6 +204,30 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .pc-champ-name.correct { color:var(--ok); }
 .pc-champ-name.incorrect { color:var(--bad); }
 
+/* BRACKET VIZ */
+.bracket-section { margin-bottom:48px; }
+.bracket-tabs { display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap; }
+.bracket-tab { background:var(--s1); border:1px solid var(--border); border-radius:6px; padding:8px 16px; font-size:12px; font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; }
+.bracket-tab:hover { border-color:var(--border2); }
+.bracket-tab.active { background:var(--s2); border-color:var(--accent); color:var(--accent); }
+.bracket-tab-dot { width:8px; height:8px; border-radius:50%; }
+.bracket-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; overflow-x:auto; }
+.bracket { display:flex; gap:24px; min-width:700px; justify-content:center; align-items:center; }
+.bracket-round { display:flex; flex-direction:column; gap:16px; }
+.bracket-round-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); text-align:center; margin-bottom:8px; }
+.bracket-match { background:var(--s2); border:1px solid var(--border); border-radius:6px; padding:8px 12px; min-width:100px; }
+.bracket-team { font-size:11px; padding:4px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.bracket-team:last-child { border-bottom:none; }
+.bracket-team.winner { font-weight:600; }
+.bracket-team.correct { color:var(--ok); }
+.bracket-team.incorrect { color:var(--bad); }
+.bracket-seed { font-family:'DM Mono',monospace; font-size:9px; color:var(--dim); }
+.bracket-connector { width:24px; display:flex; align-items:center; justify-content:center; }
+.bracket-connector::before { content:''; width:100%; height:1px; background:var(--border); }
+.bracket-champ { background:var(--gold)11; border-color:var(--gold)44; }
+.bracket-champ .bracket-team { color:var(--gold); font-weight:600; border-bottom:none; }
+@media(max-width:800px) { .bracket { min-width:600px; gap:16px; } .bracket-match { min-width:80px; padding:6px 8px; } }
+
 /* COMPARISON */
 .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:48px; }
 @media(max-width:640px){ .comparison-grid{grid-template-columns:1fr;} }
@@ -259,10 +287,15 @@ footer { border-top:1px solid var(--border); }
 /* CONTEXT BAR */
 .context-bar { background:var(--s2); border-bottom:1px solid var(--border); padding:0 24px; }
 .context-inner { max-width:1320px; margin:0 auto; display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
-.context-block { padding:14px 0; flex:1; min-width:200px; }
+.context-block { padding:14px 0; flex:1; min-width:180px; }
 .context-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
 .context-value { font-size:12px; color:var(--muted); line-height:1.4; }
 .context-divider { width:1px; background:var(--border); margin:10px 28px; flex-shrink:0; }
+.countdown { display:flex; gap:12px; }
+.countdown-unit { text-align:center; }
+.countdown-num { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--gold); line-height:1; }
+.countdown-label { font-family:'DM Mono',monospace; font-size:8px; color:var(--dim); letter-spacing:.1em; text-transform:uppercase; }
+.countdown-complete { color:var(--ok); font-weight:500; }
 
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--s2); border:1px solid var(--border2); border-radius:8px; padding:10px 20px; font-size:13px; color:var(--text); opacity:0; transition:all .25s; z-index:2000; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -307,8 +340,15 @@ footer { border-top:1px solid var(--border); }
     </div>
     <div class="context-divider"></div>
     <div class="context-block">
-      <div class="context-label">Models Tested</div>
-      <div class="context-value">Claude Sonnet 4.6 &nbsp;·&nbsp; ChatGPT GPT-4o &nbsp;·&nbsp; Gemini 2.5 Pro &nbsp;·&nbsp; Grok 3</div>
+      <div class="context-label" id="countdown-label">Countdown</div>
+      <div class="context-value" id="countdown-value">
+        <div class="countdown" id="countdown"></div>
+      </div>
+    </div>
+    <div class="context-divider"></div>
+    <div class="context-block">
+      <div class="context-label">Models</div>
+      <div class="context-value">Claude · ChatGPT · Gemini · Grok</div>
     </div>
   </div>
 </div>
@@ -337,6 +377,14 @@ footer { border-top:1px solid var(--border); }
   <div class="sh"><h2>The Picks</h2><p>Each AI was given the same prompt on March 19, 2026 — the day the first round tipped off</p></div>
   <div class="pick-grid" id="pick-grid"></div>
 
+  <div class="sh"><h2>Bracket View</h2><p>Visual bracket showing each AI's path to the championship</p></div>
+  <div class="bracket-section">
+    <div class="bracket-tabs" id="bracket-tabs"></div>
+    <div class="bracket-wrap">
+      <div class="bracket" id="bracket-viz"></div>
+    </div>
+  </div>
+
   <div class="sh"><h2>AI vs The Public</h2><p>How do the AI picks compare to ESPN bracket challenge pick percentages?</p></div>
   <div class="comparison-grid">
     <div class="comp-card">
@@ -358,6 +406,7 @@ footer { border-top:1px solid var(--border); }
   <div class="footer-inner">
     <span class="footer-note">modelmadness.ai · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
     <div class="footer-btns">
+      <button class="footer-export" onclick="showEmbed()">Embed</button>
       <button class="footer-export" onclick="shareToX()">Share on X</button>
     </div>
   </div>
@@ -413,6 +462,12 @@ const PUB_PCT = {
   UConn:9, Purdue:4, Houston:6, Other:5,
 };
 
+// ─── KEY DATES ─────────────────────────────────────────────────────────────
+const DATES = {
+  finalFour: new Date('2026-04-04T18:00:00-04:00'), // Final Four - Apr 4, 2026 6pm ET
+  championship: new Date('2026-04-06T21:00:00-04:00'), // Championship - Apr 6, 2026 9pm ET
+};
+
 // ─── LIVE STATE ────────────────────────────────────────────────────────────
 const S = {
   ff:     [],    // confirmed Final Four teams
@@ -424,6 +479,7 @@ const S = {
   roundsTotal: { r64:32, r32:16, s16:8, e8:4, ff:2, ncg:1 },
   champShown: false, // track if we've shown confetti
   source: 'espn', // 'supabase' or 'espn'
+  prevRanks: {}, // track previous ranks for animations
 };
 
 // ─── SUPABASE (optional persistence) ───────────────────────────────────────
@@ -498,6 +554,9 @@ function launchConfetti() {
   const colors = ['#ffd166', '#ff6b2b', '#4ade80', '#5f8df0', '#cc785c', '#10a37f'];
   const shapes = ['square', 'circle'];
 
+  // Play celebration sound
+  playSound('celebrate');
+
   for (let i = 0; i < 150; i++) {
     const confetti = document.createElement('div');
     confetti.className = 'confetti';
@@ -515,6 +574,89 @@ function launchConfetti() {
     setTimeout(() => confetti.remove(), 6000);
   }
 }
+
+// ─── SOUND EFFECTS ─────────────────────────────────────────────────────────
+const audioCtx = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+
+function playSound(type) {
+  if (!audioCtx) return;
+  try {
+    // Resume audio context if suspended (browser autoplay policy)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'celebrate') {
+      // Celebratory fanfare - ascending notes
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.type = 'triangle';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.12);
+        g.gain.exponentialDecayTo && g.gain.exponentialDecayTo(0.01, audioCtx.currentTime + i * 0.12 + 0.3);
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.12);
+        g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.12 + 0.4);
+        o.start(audioCtx.currentTime + i * 0.12);
+        o.stop(audioCtx.currentTime + i * 0.12 + 0.5);
+      });
+    }
+  } catch(e) {
+    // Audio not supported
+  }
+}
+
+// ─── COUNTDOWN ─────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const now = new Date();
+  const el = document.getElementById('countdown');
+  const labelEl = document.getElementById('countdown-label');
+  if (!el || !labelEl) return;
+
+  let target, eventName;
+
+  if (S.champ) {
+    // Tournament complete
+    el.innerHTML = '<span class="countdown-complete">🏆 Tournament Complete!</span>';
+    labelEl.textContent = 'Status';
+    return;
+  } else if (now < DATES.finalFour) {
+    target = DATES.finalFour;
+    eventName = 'Final Four';
+  } else if (now < DATES.championship) {
+    target = DATES.championship;
+    eventName = 'Championship';
+  } else {
+    el.innerHTML = '<span class="countdown-complete">🏀 Game Time!</span>';
+    labelEl.textContent = 'Status';
+    return;
+  }
+
+  labelEl.textContent = eventName;
+
+  const diff = target - now;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+  el.innerHTML = `
+    <div class="countdown-unit"><div class="countdown-num">${days}</div><div class="countdown-label">Days</div></div>
+    <div class="countdown-unit"><div class="countdown-num">${String(hours).padStart(2,'0')}</div><div class="countdown-label">Hrs</div></div>
+    <div class="countdown-unit"><div class="countdown-num">${String(mins).padStart(2,'0')}</div><div class="countdown-label">Min</div></div>
+    <div class="countdown-unit"><div class="countdown-num">${String(secs).padStart(2,'0')}</div><div class="countdown-label">Sec</div></div>
+  `;
+}
+
+// Update countdown every second
+setInterval(updateCountdown, 1000);
+updateCountdown();
 
 // ─── SHARE TO X ────────────────────────────────────────────────────────────
 function shareToX() {
@@ -665,12 +807,16 @@ function parseESPN(data) {
 }
 
 // ─── RENDER ────────────────────────────────────────────────────────────────
+let currentBracketAI = 'claude';
+
 function render() {
   const sc = allScores();
   renderTicker(sc);
   renderLeaderboard(sc);
   renderRoundTracker();
   renderPickGrid(sc);
+  renderBracketTabs();
+  renderBracket(currentBracketAI, sc);
   renderConsensus();
   renderMatrix();
   renderInsights(sc);
@@ -686,10 +832,21 @@ function renderTicker(sc) {
 
 function renderLeaderboard(sc) {
   const sorted=[...ORDER].sort((a,b)=>sc[b].pts-sc[a].pts);
+
+  // Track rank changes for animations
+  const newRanks = {};
+  sorted.forEach((id, i) => newRanks[id] = i + 1);
+
   document.getElementById('lb-podium').innerHTML=sorted.map((id,i)=>{
     const p=PICKS[id], s=sc[id].pts, pct=Math.round(s/MAX*100);
     const cd=sc[id].d.champ;
-    return `<div class="lb-card rank-${i+1}${i===0?' leader':''}">
+    const prevRank = S.prevRanks[id];
+    const newRank = i + 1;
+    let animClass = '';
+    if (prevRank && prevRank !== newRank) {
+      animClass = newRank < prevRank ? ' rank-up' : ' rank-down';
+    }
+    return `<div class="lb-card rank-${i+1}${i===0?' leader':''}${animClass}" data-ai="${id}">
       <div class="lb-card-rank">${i+1}</div>
       <div class="lb-card-ai"><div class="lb-card-dot" style="background:${p.color}"></div><div class="lb-card-name" style="color:${p.color}">${p.name}</div></div>
       <div class="lb-card-score" style="color:${i===0?'var(--gold)':'var(--text)'}">${s>0?s:'—'}</div>
@@ -698,7 +855,18 @@ function renderLeaderboard(sc) {
       <div class="lb-champ-tag">Pick: <strong>${p.champ}</strong>${cd==='correct'?' ✓':cd==='incorrect'?' ✗':''}</div>
     </div>`;
   }).join('');
+
+  // Update previous ranks
+  S.prevRanks = newRanks;
+
   setTimeout(()=>{ document.querySelectorAll('.lb-bar-fill').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); },60);
+
+  // Remove animation classes after animation completes
+  setTimeout(() => {
+    document.querySelectorAll('.lb-card.rank-up, .lb-card.rank-down').forEach(el => {
+      el.classList.remove('rank-up', 'rank-down');
+    });
+  }, 700);
 }
 
 function renderRoundTracker() {
@@ -856,6 +1024,100 @@ function renderStrip() {
   document.getElementById('rs-content').innerHTML=parts.length?parts.join(' &nbsp;·&nbsp; '):'No results confirmed yet — tournament in progress';
 }
 
+function renderBracketTabs() {
+  document.getElementById('bracket-tabs').innerHTML = ORDER.map(id => {
+    const p = PICKS[id];
+    return `<button class="bracket-tab${currentBracketAI===id?' active':''}" onclick="selectBracket('${id}')">
+      <div class="bracket-tab-dot" style="background:${p.color}"></div>
+      ${p.name}
+    </button>`;
+  }).join('');
+}
+
+function selectBracket(id) {
+  currentBracketAI = id;
+  renderBracketTabs();
+  renderBracket(id, allScores());
+}
+
+function renderBracket(aiId, sc) {
+  const p = PICKS[aiId];
+  const d = sc[aiId].d;
+  const ffLow = S.ff.map(t=>t.toLowerCase());
+  const sfLow = S.semis.map(t=>t.toLowerCase());
+
+  // Get team status (correct, incorrect, or pending)
+  const teamStatus = (team, type, region) => {
+    if (type === 'ff') return d.ff[region] || 'pending';
+    if (type === 'sf') {
+      const idx = p.sf.indexOf(team);
+      return idx !== -1 ? (d.sf[idx] || 'pending') : 'pending';
+    }
+    if (type === 'champ') return d.champ || 'pending';
+    return 'pending';
+  };
+
+  // Regional winners (E8 -> FF)
+  const regions = ['east', 'west', 'midwest', 'south'];
+  const regionLabels = { east: 'East', west: 'West', midwest: 'Midwest', south: 'South' };
+
+  // Build bracket HTML
+  const html = `
+    <!-- Left Side: East & West -->
+    <div class="bracket-round">
+      <div class="bracket-round-label">Elite 8</div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.ff.east, 'ff', 'east')}">${p.ff.east}<span class="bracket-seed">East</span></div>
+      </div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.ff.west, 'ff', 'west')}">${p.ff.west}<span class="bracket-seed">West</span></div>
+      </div>
+    </div>
+
+    <div class="bracket-connector"></div>
+
+    <div class="bracket-round">
+      <div class="bracket-round-label">Final Four</div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.sf[0], 'sf', null)}">${p.sf[0]}</div>
+      </div>
+    </div>
+
+    <div class="bracket-connector"></div>
+
+    <div class="bracket-round">
+      <div class="bracket-round-label">Championship</div>
+      <div class="bracket-match bracket-champ">
+        <div class="bracket-team ${teamStatus(p.champ, 'champ', null)}" style="color:${d.champ==='correct'?'var(--ok)':d.champ==='incorrect'?'var(--bad)':p.color}">${p.champ}</div>
+      </div>
+    </div>
+
+    <div class="bracket-connector"></div>
+
+    <div class="bracket-round">
+      <div class="bracket-round-label">Final Four</div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.sf[1], 'sf', null)}">${p.sf[1]}</div>
+      </div>
+    </div>
+
+    <div class="bracket-connector"></div>
+
+    <!-- Right Side: Midwest & South -->
+    <div class="bracket-round">
+      <div class="bracket-round-label">Elite 8</div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.ff.midwest, 'ff', 'midwest')}">${p.ff.midwest}<span class="bracket-seed">MW</span></div>
+      </div>
+      <div class="bracket-match">
+        <div class="bracket-team ${teamStatus(p.ff.south, 'ff', 'south')}">${p.ff.south}<span class="bracket-seed">South</span></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('bracket-viz').innerHTML = html;
+}
+
 // ─── STATUS ────────────────────────────────────────────────────────────────
 function setStatus(s) {
   const dot=document.getElementById('live-dot'), lbl=document.getElementById('live-label');
@@ -892,6 +1154,21 @@ function applyOverride() {
       setTimeout(launchConfetti, 300);
     }
   } catch(e){ toast('Invalid JSON: '+e.message); }
+}
+
+// ─── EMBED ─────────────────────────────────────────────────────────────────
+function showEmbed() {
+  const embedCode = `<iframe src="https://modelmadness.ai/embed.html" width="400" height="280" frameborder="0" style="border-radius:12px;"></iframe>`;
+  navigator.clipboard.writeText(embedCode).then(() => {
+    toast('Embed code copied!');
+  }).catch(() => {
+    // Fallback: show in alert
+    prompt('Copy embed code:', embedCode);
+  });
+  // Track embed copy in GA
+  if (typeof gtag === 'function') {
+    gtag('event', 'share', { method: 'embed', content_type: 'widget' });
+  }
 }
 
 // ─── EXPORT ────────────────────────────────────────────────────────────────

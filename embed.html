@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Madness 2026 - Embed</title>
+<style>
+:root {
+  --bg: #080809;
+  --s1: #101012;
+  --s2: #17171a;
+  --border: rgba(255,255,255,0.08);
+  --text: #f5f5f3;
+  --muted: #9a9890;
+  --dim: #5a5a56;
+  --accent: #ff6b2b;
+  --gold: #ffd166;
+  --ok: #4ade80;
+  --bad: #f87171;
+  --claude:  #e8a088;
+  --chatgpt: #34d399;
+  --gemini:  #7fa3f7;
+  --grok:    #d8e0f0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 12px;
+  min-height: 100vh;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.header h1 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.header em { color: var(--accent); font-style: normal; }
+.header .live {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.standings {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+@media(max-width:400px) { .standings { grid-template-columns: repeat(2, 1fr); } }
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+.card.leader { border-color: var(--gold); background: var(--s2); }
+.rank { font-size: 18px; font-weight: 700; color: var(--dim); margin-bottom: 2px; }
+.card.leader .rank { color: var(--gold); }
+.name { font-size: 11px; font-weight: 500; margin-bottom: 4px; }
+.score { font-size: 22px; font-weight: 700; color: var(--gold); }
+.pick { font-size: 9px; color: var(--muted); margin-top: 4px; }
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--dim);
+}
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.footer a:hover { text-decoration: underline; }
+.status { margin-bottom: 10px; font-size: 11px; color: var(--muted); }
+.status strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Model <em>Madness</em></h1>
+  <div class="live">
+    <div class="live-dot"></div>
+    <span id="status">Live</span>
+  </div>
+</div>
+
+<div class="status" id="results">Loading...</div>
+
+<div class="standings" id="standings"></div>
+
+<div class="footer">
+  <span>AI Bracket Challenge 2026</span>
+  <a href="https://modelmadness.ai/?utm_source=embed&utm_medium=widget&utm_campaign=embed" target="_blank">View Full Site</a>
+</div>
+
+<script>
+const PICKS = {
+  claude:  { name:'Claude',  color:'#cc785c', champ:'Florida' },
+  chatgpt: { name:'ChatGPT', color:'#10a37f', champ:'UConn' },
+  gemini:  { name:'Gemini',  color:'#5f8df0', champ:'Duke' },
+  grok:    { name:'Grok',    color:'#c8d0e0', champ:'Arizona' },
+};
+const ORDER = ['claude','chatgpt','gemini','grok'];
+const MAX = 120;
+
+const NORM = {
+  'duke blue devils':'Duke','duke':'Duke',
+  'arizona wildcats':'Arizona','arizona':'Arizona',
+  'florida gators':'Florida','florida':'Florida',
+  'uconn huskies':'UConn','connecticut':'UConn','uconn':'UConn',
+};
+const N = s => s ? (NORM[s.toLowerCase().trim()] || s.trim()) : '';
+
+const S = { ff:[], semis:[], champ:null };
+
+const FULL_PICKS = {
+  claude:  { ff:['Duke','Arizona','Michigan','Florida'], sf:['Duke','Florida'] },
+  chatgpt: { ff:['UConn','Arizona','Purdue','Houston'], sf:['UConn','Houston'] },
+  gemini:  { ff:['Duke','Arizona','Purdue','Houston'], sf:['Duke','Purdue'] },
+  grok:    { ff:['Duke','Arizona','Purdue','Florida'], sf:['Duke','Arizona'] },
+};
+
+function score(id) {
+  let pts = 0;
+  const p = FULL_PICKS[id];
+  const ffLow = S.ff.map(t => t.toLowerCase());
+  const sfLow = S.semis.map(t => t.toLowerCase());
+
+  p.ff.forEach(team => {
+    if (ffLow.includes(team.toLowerCase())) pts += 10;
+  });
+  p.sf.forEach(team => {
+    if (sfLow.includes(team.toLowerCase())) pts += 20;
+  });
+  if (S.champ && S.champ.toLowerCase() === PICKS[id].champ.toLowerCase()) pts += 40;
+
+  return pts;
+}
+
+async function fetchData() {
+  // Try Supabase first
+  try {
+    const configRes = await fetch('/api/config');
+    if (configRes.ok) {
+      const config = await configRes.json();
+      if (config.url && config.anonKey && window.supabase) {
+        const sb = window.supabase.createClient(config.url, config.anonKey);
+        const { data } = await sb.schema('model_madness').from('tournament_state').select('*').single();
+        if (data) {
+          if (data.final_four) S.ff = data.final_four.map(N).filter(Boolean);
+          if (data.semis) S.semis = data.semis.map(N).filter(Boolean);
+          if (data.champion) S.champ = N(data.champion);
+          render();
+          return;
+        }
+      }
+    }
+  } catch(e) {}
+
+  // Fallback to ESPN
+  try {
+    const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100');
+    if (res.ok) {
+      const data = await res.json();
+      parseESPN(data);
+    }
+  } catch(e) {}
+
+  render();
+}
+
+function parseESPN(data) {
+  const ff = new Set(), sm = new Set();
+  let ch = null;
+
+  for (const ev of (data.events || [])) {
+    const comp = ev.competitions?.[0];
+    if (!comp || !ev.status?.type?.completed) continue;
+
+    const notes = (comp.notes || []).map(n => (n.headline || '').toLowerCase()).join(' ');
+    const ra = (comp.type?.abbreviation || '').toString().toUpperCase();
+
+    const isNCG = ra === 'NCG' || ra === 'NC' || notes.includes('national championship');
+    const isFF = ra === 'FF' || ra === 'NSF' || notes.includes('final four');
+    const isEE = ra === 'EE' || ra === 'RE' || notes.includes('elite eight');
+
+    const win = (comp.competitors || []).find(c => c.winner);
+    const lose = (comp.competitors || []).find(c => !c.winner);
+    if (!win) continue;
+
+    const wn = N(win.team?.displayName || win.team?.name || '');
+    const ln = lose ? N(lose.team?.displayName || lose.team?.name || '') : '';
+
+    if (isNCG && wn) { ch = wn; sm.add(wn); if (ln) sm.add(ln); ff.add(wn); if (ln) ff.add(ln); }
+    else if (isFF && wn) { sm.add(wn); ff.add(wn); if (ln) ff.add(ln); }
+    else if (isEE && wn) { ff.add(wn); }
+  }
+
+  S.ff = [...ff].filter(Boolean);
+  S.semis = [...sm].filter(Boolean);
+  S.champ = ch;
+}
+
+function render() {
+  const scores = {};
+  ORDER.forEach(id => scores[id] = score(id));
+  const sorted = [...ORDER].sort((a, b) => scores[b] - scores[a]);
+
+  document.getElementById('standings').innerHTML = sorted.map((id, i) => {
+    const p = PICKS[id];
+    const s = scores[id];
+    return `<div class="card${i === 0 ? ' leader' : ''}">
+      <div class="rank">${i + 1}</div>
+      <div class="name" style="color:${p.color}">${p.name}</div>
+      <div class="score">${s > 0 ? s : '—'}</div>
+      <div class="pick">${p.champ}</div>
+    </div>`;
+  }).join('');
+
+  const parts = [];
+  if (S.ff.length) parts.push(`<strong>FF:</strong> ${S.ff.join(', ')}`);
+  if (S.champ) parts.push(`<strong>Champ:</strong> ${S.champ}`);
+  document.getElementById('results').innerHTML = parts.length ? parts.join(' · ') : 'Tournament in progress...';
+}
+
+// Supabase client (optional)
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+script.onload = fetchData;
+document.head.appendChild(script);
+
+// Refresh every 2 minutes
+setInterval(fetchData, 120000);
+</script>
+</body>
+</html>
