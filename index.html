@@ -198,6 +198,13 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .pick-badge.incorrect{ background:rgba(248,113,113,.1); border-color:var(--bad); color:var(--bad); }
 .pick-badge.pending  { border-style:dashed; }
 .pick-section-gap { height:10px; }
+.pick-round-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:4px; }
+.pick-round-summary { background:var(--s2); border:1px solid var(--border); border-radius:5px; padding:6px 8px; text-align:center; }
+.pick-round-summary.has-correct { border-color:rgba(74,222,128,.3); background:rgba(74,222,128,.05); }
+.prs-name { display:block; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--dim); margin-bottom:2px; }
+.prs-score { display:block; font-family:'DM Mono',monospace; font-size:12px; font-weight:500; color:var(--text); }
+.pick-round-summary.has-correct .prs-score { color:var(--ok); }
+.prs-pts { display:block; font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); }
 .pc-champ-row { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
 .pc-champ-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; width:52px; flex-shrink:0; }
 .pc-champ-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; flex:1; transition:color .3s; }
@@ -260,6 +267,31 @@ table.matrix tr:last-child td { border-bottom:none; }
 .insight-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:var(--accent); margin-bottom:4px; }
 .insight-label { font-size:12px; color:var(--muted); line-height:1.5; }
 .insight-label strong { color:var(--text); font-weight:500; }
+
+/* BRACKET ACCURACY */
+.accuracy-section { margin-bottom:48px; }
+.accuracy-intro { background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:16px; }
+.accuracy-intro p { font-size:13px; color:var(--muted); line-height:1.6; margin:0; }
+.accuracy-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+@media(max-width:900px){ .accuracy-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:500px){ .accuracy-grid{grid-template-columns:1fr;} }
+.accuracy-card { background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:16px; position:relative; overflow:hidden; }
+.accuracy-card.grade-a { border-color:rgba(74,222,128,.3); }
+.accuracy-card.grade-a .acc-grade { color:var(--ok); }
+.accuracy-card.grade-d { border-color:rgba(251,191,36,.3); }
+.accuracy-card.grade-d .acc-grade { color:var(--warn); }
+.accuracy-card.grade-f { border-color:rgba(248,113,113,.3); }
+.accuracy-card.grade-f .acc-grade { color:var(--bad); }
+.acc-grade { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:1; margin-bottom:4px; }
+.acc-model { font-size:14px; font-weight:600; margin-bottom:8px; }
+.acc-stat { font-family:'DM Mono',monospace; font-size:11px; color:var(--text); margin-bottom:8px; padding:4px 8px; background:var(--s2); border-radius:4px; display:inline-block; }
+.acc-detail { font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:10px; }
+.acc-corrections { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); }
+.accuracy-finding { background:var(--s2); border:1px solid var(--border2); border-radius:10px; padding:16px 20px; }
+.finding-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+.finding-text { font-size:12px; color:var(--muted); line-height:1.6; }
+.finding-text a { color:var(--text); text-decoration:underline; text-underline-offset:2px; }
+.finding-text a:hover { color:var(--accent); }
 
 /* FOOTER */
 footer { border-top:1px solid var(--border); }
@@ -400,6 +432,49 @@ footer { border-top:1px solid var(--border); }
 
   <div class="sh"><h2>The Experiment</h2><p>Same prompt. Same day. Four different answers. Here's what the data shows.</p></div>
   <div class="insights-grid" id="insights-grid"></div>
+
+  <div class="spacer"></div>
+
+  <div class="sh"><h2>Bracket Accuracy</h2><p>Before scoring picks, we checked: did each model even know the real tournament field?</p></div>
+  <div class="accuracy-section">
+    <div class="accuracy-intro">
+      <p>On March 19, 2026 — the day Round of 64 games began — we asked each model for their full bracket predictions. Two models produced the actual 2026 tournament field. Two did not.</p>
+    </div>
+    <div class="accuracy-grid">
+      <div class="accuracy-card grade-a">
+        <div class="acc-grade">A+</div>
+        <div class="acc-model" style="color:var(--claude)">Claude</div>
+        <div class="acc-stat">64/64 teams correct</div>
+        <div class="acc-detail">Perfect bracket structure on first attempt. Zero fabricated teams. Zero teams in wrong regions.</div>
+        <div class="acc-corrections">0 corrections needed</div>
+      </div>
+      <div class="accuracy-card grade-a">
+        <div class="acc-grade">A-</div>
+        <div class="acc-model" style="color:var(--gemini)">Gemini</div>
+        <div class="acc-stat">64/64 teams, format issues</div>
+        <div class="acc-detail">All teams correct. Minor ambiguity in table format for some regional placements.</div>
+        <div class="acc-corrections">0 corrections needed</div>
+      </div>
+      <div class="accuracy-card grade-d">
+        <div class="acc-grade">D</div>
+        <div class="acc-model" style="color:var(--grok)">Grok</div>
+        <div class="acc-stat">3 fabricated teams</div>
+        <div class="acc-detail">Listed Marquette, Auburn, and Creighton — none are in the 2026 tournament. ~9 teams placed in wrong regions.</div>
+        <div class="acc-corrections">3 corrections needed</div>
+      </div>
+      <div class="accuracy-card grade-f">
+        <div class="acc-grade">D</div>
+        <div class="acc-model" style="color:var(--chatgpt)">ChatGPT</div>
+        <div class="acc-stat">33 fabricated teams</div>
+        <div class="acc-detail">Generated a bracket from training data, not the real 2026 field. Duke (overall 1-seed) was listed as a 4-seed in the wrong region.</div>
+        <div class="acc-corrections">3 corrections needed</div>
+      </div>
+    </div>
+    <div class="accuracy-finding">
+      <div class="finding-label">Key Finding</div>
+      <div class="finding-text">Two of four models could not produce the actual 2026 tournament field on the day games began. After multiple correction prompts, all brackets were fixed and are now scoreable. Full methodology documented in <a href="https://github.com/dgk-technologies/model-madness/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">METHODOLOGY.md</a>.</div>
+    </div>
+  </div>
 </main>
 
 <footer>
@@ -422,39 +497,124 @@ footer { border-top:1px solid var(--border); }
 
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
+// Full 63-game bracket picks for each AI model
+// Structure: r64/r32/s16/e8 arrays are ordered by seed matchups within each region
+// Regions order: East, West, Midwest, South
+// Seed matchups per region: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
+
 const PICKS = {
   claude: {
     name:'Claude', model:'Sonnet 4.6', color:'#cc785c', initial:'C',
-    ff:   { east:'Duke', west:'Arizona', midwest:'Michigan', south:'Florida' },
-    sf:   ['Duke','Florida'],
+    // Round of 64 (32 games) - 8 per region
+    r64: {
+      east: ['Duke','Ohio State','St. John\'s','Kansas','South Florida','Michigan State','UCLA','UConn'],
+      west: ['Arizona','Villanova','Wisconsin','Arkansas','BYU','Gonzaga','Missouri','Purdue'],
+      midwest: ['Michigan','Georgia','Vanderbilt','Nebraska','North Carolina','Illinois','Saint Mary\'s','Iowa State'],
+      south: ['Florida','Clemson','Tennessee','Virginia','Alabama','Houston','Kentucky','Texas Tech'],
+    },
+    // Round of 32 (16 games) - 4 per region (winners of 1v8, 4v5, 3v6, 2v7)
+    r32: {
+      east: ['Duke','Kansas','Michigan State','UConn'],
+      west: ['Arizona','Arkansas','Gonzaga','Purdue'],
+      midwest: ['Michigan','Nebraska','Illinois','Iowa State'],
+      south: ['Florida','Tennessee','Houston','Texas Tech'],
+    },
+    // Sweet 16 (8 games) - 2 per region
+    s16: {
+      east: ['Duke','UConn'],
+      west: ['Arizona','Purdue'],
+      midwest: ['Michigan','Iowa State'],
+      south: ['Florida','Houston'],
+    },
+    // Elite 8 (4 games) - 1 per region (Final Four teams)
+    e8: { east:'Duke', west:'Arizona', midwest:'Michigan', south:'Florida' },
+    // Final Four (2 games)
+    ff: ['Duke','Florida'],
+    // Championship
     champ:'Florida',
     note: 'Defending champs. Top rebounding margin in the country (+14.5). Frontcourt depth.',
   },
   chatgpt: {
     name:'ChatGPT', model:'GPT-4o', color:'#10a37f', initial:'G',
-    ff:   { east:'UConn', west:'Arizona', midwest:'Purdue', south:'Houston' },
-    sf:   ['UConn','Houston'],
+    r64: {
+      east: ['Duke','Ohio State','St. John\'s','Kansas','Louisville','Michigan State','UCLA','UConn'],
+      west: ['Arizona','Utah State','Wisconsin','Arkansas','Texas','Gonzaga','Missouri','Purdue'],
+      midwest: ['Michigan','Saint Louis','Texas Tech','Alabama','Tennessee','Virginia','Kentucky','Iowa State'],
+      south: ['Florida','Clemson','McNeese','Nebraska','North Carolina','Illinois','Texas A&M','Houston'],
+    },
+    r32: {
+      east: ['Duke','Kansas','Michigan State','UConn'],
+      west: ['Arizona','Arkansas','Gonzaga','Purdue'],
+      midwest: ['Michigan','Alabama','Tennessee','Iowa State'],
+      south: ['Florida','Nebraska','North Carolina','Houston'],
+    },
+    s16: {
+      east: ['Duke','UConn'],
+      west: ['Arizona','Purdue'],
+      midwest: ['Michigan','Tennessee'],
+      south: ['Florida','Houston'],
+    },
+    e8: { east:'UConn', west:'Purdue', midwest:'Tennessee', south:'Houston' },
+    ff: ['UConn','Houston'],
     champ:'UConn',
     note: "Been here, know how to close. Classic offense vs defense title game vs Houston.",
   },
   gemini: {
     name:'Gemini', model:'2.5 Pro', color:'#5f8df0', initial:'G',
-    ff:   { east:'Duke', west:'Arizona', midwest:'Purdue', south:'Houston' },
-    sf:   ['Duke','Purdue'],
+    r64: {
+      east: ['Duke','Ohio State','St. John\'s','Kansas','South Florida','Michigan State','UCLA','UConn'],
+      west: ['Arizona','Villanova','Wisconsin','Arkansas','BYU','Gonzaga','Miami','Iowa State'],
+      midwest: ['Michigan','Georgia','Texas Tech','Alabama','Tennessee','Virginia','Kentucky','Purdue'],
+      south: ['Florida','Clemson','McNeese','Nebraska','North Carolina','Illinois','Saint Mary\'s','Houston'],
+    },
+    r32: {
+      east: ['Duke','St. John\'s','South Florida','UConn'],
+      west: ['Arizona','Arkansas','Gonzaga','Iowa State'],
+      midwest: ['Michigan','Alabama','Virginia','Purdue'],
+      south: ['Florida','McNeese','Illinois','Houston'],
+    },
+    s16: {
+      east: ['Duke','Michigan State'],
+      west: ['Arizona','Gonzaga'],
+      midwest: ['Michigan','Purdue'],
+      south: ['Florida','Houston'],
+    },
+    e8: { east:'Duke', west:'Arizona', midwest:'Purdue', south:'Houston' },
+    ff: ['Duke','Purdue'],
     champ:'Duke',
     note: 'Cooper Flagg + NBA-level depth. Cuts down the nets in Indy like 2010 & 2015.',
   },
   grok: {
     name:'Grok', model:'Grok 3', color:'#c8d0e0', initial:'X',
-    ff:   { east:'Duke', west:'Arizona', midwest:'Purdue', south:'Florida' },
-    sf:   ['Duke','Arizona'],
+    r64: {
+      east: ['Duke','TCU','St. John\'s','Kansas','Louisville','Michigan State','UCLA','UConn'],
+      west: ['Arizona','Villanova','Wisconsin','Arkansas','BYU','Gonzaga','Miami','Purdue'],
+      midwest: ['Michigan','Saint Louis','Texas Tech','Alabama','Tennessee','Virginia','Kentucky','Iowa State'],
+      south: ['Florida','Clemson','Vanderbilt','Nebraska','North Carolina','Illinois','Saint Mary\'s','Houston'],
+    },
+    r32: {
+      east: ['Duke','Kansas','Michigan State','UConn'],
+      west: ['Arizona','Arkansas','Gonzaga','Purdue'],
+      midwest: ['Michigan','Alabama','Virginia','Iowa State'],
+      south: ['Florida','Nebraska','Illinois','Houston'],
+    },
+    s16: {
+      east: ['Duke','UConn'],
+      west: ['Arizona','Purdue'],
+      midwest: ['Michigan','Iowa State'],
+      south: ['Florida','Houston'],
+    },
+    e8: { east:'Duke', west:'Arizona', midwest:'Michigan', south:'Florida' },
+    ff: ['Duke','Arizona'],
     champ:'Arizona',
     note: 'Momentum, friendly draw, peaking at the right time. Wildcats win it all.',
   },
 };
 
 const ORDER = ['claude','chatgpt','gemini','grok'];
-const MAX   = 120; // 4×10 + 2×20 + 1×40
+// Scoring: 1 pt R64, 2 pts R32, 4 pts S16, 8 pts E8, 16 pts FF, 32 pts Champ
+// Max = 32×1 + 16×2 + 8×4 + 4×8 + 2×16 + 1×32 = 192
+const MAX   = 192;
 
 // ESPN Bracket Challenge approximate public pick percentages for champion
 const PUB_PCT = {
@@ -470,6 +630,16 @@ const DATES = {
 
 // ─── LIVE STATE ────────────────────────────────────────────────────────────
 const S = {
+  // Winners by round (for full bracket scoring)
+  winners: {
+    r64: { east:[], west:[], midwest:[], south:[] },
+    r32: { east:[], west:[], midwest:[], south:[] },
+    s16: { east:[], west:[], midwest:[], south:[] },
+    e8:  { east:null, west:null, midwest:null, south:null },
+    ff:  [],    // Final Four game winners (2 teams going to championship)
+    ncg: null,  // Champion
+  },
+  // Legacy fields for compatibility
   ff:     [],    // confirmed Final Four teams
   semis:  [],    // Final Four game winners (going to title game)
   champ:  null,
@@ -525,6 +695,40 @@ async function fetchFromSupabase() {
     if (data.semis?.length) S.semis = data.semis.map(N).filter(Boolean);
     if (data.champion) S.champ = N(data.champion);
     if (data.rounds) S.rounds = data.rounds;
+
+    // Apply winners data for full bracket scoring
+    if (data.winners) {
+      const w = data.winners;
+      S.winners = {
+        r64: {
+          east: (w.r64?.east || []).map(N),
+          west: (w.r64?.west || []).map(N),
+          midwest: (w.r64?.midwest || []).map(N),
+          south: (w.r64?.south || []).map(N),
+        },
+        r32: {
+          east: (w.r32?.east || []).map(N),
+          west: (w.r32?.west || []).map(N),
+          midwest: (w.r32?.midwest || []).map(N),
+          south: (w.r32?.south || []).map(N),
+        },
+        s16: {
+          east: (w.s16?.east || []).map(N),
+          west: (w.s16?.west || []).map(N),
+          midwest: (w.s16?.midwest || []).map(N),
+          south: (w.s16?.south || []).map(N),
+        },
+        e8: {
+          east: w.e8?.east ? N(w.e8.east) : null,
+          west: w.e8?.west ? N(w.e8.west) : null,
+          midwest: w.e8?.midwest ? N(w.e8.midwest) : null,
+          south: w.e8?.south ? N(w.e8.south) : null,
+        },
+        ff: (w.ff || []).map(N),
+        ncg: w.ncg ? N(w.ncg) : null,
+      };
+    }
+
     S.source = 'supabase';
     S.lastFetch = new Date(data.updated_at);
     console.log('Loaded state from Supabase');
@@ -689,27 +893,87 @@ function shareToX() {
 }
 
 // ─── SCORING ───────────────────────────────────────────────────────────────
+// Points per round: R64=1, R32=2, S16=4, E8=8, FF=16, NCG=32
+const PTS = { r64:1, r32:2, s16:4, e8:8, ff:16, ncg:32 };
+const REGIONS = ['east','west','midwest','south'];
+
 function score(id) {
   const p = PICKS[id];
   let pts = 0;
-  const d = { ff:{}, sf:[null,null], champ:'pending' };
-  const ffDone = S.ff.length >= 4;
-  const sfDone = S.semis.length >= 2;
-  const ffLow  = S.ff.map(t=>t.toLowerCase());
-  const sfLow  = S.semis.map(t=>t.toLowerCase());
+  const d = {
+    r64: { east:[], west:[], midwest:[], south:[] },
+    r32: { east:[], west:[], midwest:[], south:[] },
+    s16: { east:[], west:[], midwest:[], south:[] },
+    e8:  { east:'pending', west:'pending', midwest:'pending', south:'pending' },
+    ff:  ['pending','pending'],
+    champ: 'pending',
+  };
 
-  for (const [r,team] of Object.entries(p.ff)) {
-    if (ffLow.includes(team.toLowerCase())) { pts+=10; d.ff[r]='correct'; }
-    else d.ff[r] = ffDone ? 'incorrect' : 'pending';
+  // Helper to check if a pick matches any winner
+  const matches = (pick, winners) => {
+    if (!winners || !winners.length) return null; // pending
+    const pickLow = pick.toLowerCase();
+    return winners.some(w => w.toLowerCase() === pickLow);
+  };
+
+  // Round of 64, Round of 32, Sweet 16 (array picks per region)
+  for (const round of ['r64','r32','s16']) {
+    for (const region of REGIONS) {
+      const picks = p[round]?.[region] || [];
+      const winners = S.winners[round]?.[region] || [];
+      const roundDone = winners.length >= picks.length;
+
+      picks.forEach((pick, i) => {
+        const pickLow = pick.toLowerCase();
+        const matched = winners.some(w => w.toLowerCase() === pickLow);
+        if (matched) {
+          pts += PTS[round];
+          d[round][region][i] = 'correct';
+        } else {
+          d[round][region][i] = roundDone ? 'incorrect' : 'pending';
+        }
+      });
+    }
   }
-  p.sf.forEach((team,i) => {
-    if (sfLow.includes(team.toLowerCase())) { pts+=20; d.sf[i]='correct'; }
-    else d.sf[i] = sfDone ? 'incorrect' : 'pending';
+
+  // Elite 8 (single pick per region = Final Four)
+  for (const region of REGIONS) {
+    const pick = p.e8?.[region];
+    const winner = S.winners.e8?.[region];
+    if (!pick) continue;
+    if (winner) {
+      if (winner.toLowerCase() === pick.toLowerCase()) {
+        pts += PTS.e8;
+        d.e8[region] = 'correct';
+      } else {
+        d.e8[region] = 'incorrect';
+      }
+    }
+  }
+
+  // Final Four (2 semifinal winners)
+  const ffWinners = S.winners.ff || [];
+  const ffDone = ffWinners.length >= 2;
+  (p.ff || []).forEach((pick, i) => {
+    if (ffWinners.some(w => w.toLowerCase() === pick.toLowerCase())) {
+      pts += PTS.ff;
+      d.ff[i] = 'correct';
+    } else {
+      d.ff[i] = ffDone ? 'incorrect' : 'pending';
+    }
   });
-  if (S.champ) {
-    if (S.champ.toLowerCase()===p.champ.toLowerCase()) { pts+=40; d.champ='correct'; }
-    else d.champ='incorrect';
+
+  // Championship
+  const champWinner = S.winners.ncg;
+  if (champWinner) {
+    if (champWinner.toLowerCase() === p.champ.toLowerCase()) {
+      pts += PTS.ncg;
+      d.champ = 'correct';
+    } else {
+      d.champ = 'incorrect';
+    }
   }
+
   return { pts, d };
 }
 
@@ -759,8 +1023,26 @@ function parseESPN(data) {
   const ff=new Set(S.ff), sm=new Set(S.semis);
   let ch=S.champ;
 
-  // Reset round counts
+  // Reset round counts and winners
   const rounds = { r64:0, r32:0, s16:0, e8:0, ff:0, ncg:0 };
+  const winners = {
+    r64: { east:new Set(), west:new Set(), midwest:new Set(), south:new Set() },
+    r32: { east:new Set(), west:new Set(), midwest:new Set(), south:new Set() },
+    s16: { east:new Set(), west:new Set(), midwest:new Set(), south:new Set() },
+    e8:  { east:null, west:null, midwest:null, south:null },
+    ff:  new Set(),
+    ncg: null,
+  };
+
+  // Region detection from notes
+  const detectRegion = (notes) => {
+    const n = notes.toLowerCase();
+    if (n.includes('east')) return 'east';
+    if (n.includes('west')) return 'west';
+    if (n.includes('midwest')) return 'midwest';
+    if (n.includes('south')) return 'south';
+    return null;
+  };
 
   for (const ev of (data.events||[])) {
     const comp = ev.competitions?.[0];
@@ -792,14 +1074,41 @@ function parseESPN(data) {
     const wn = N(win.team?.displayName||win.team?.name||'');
     const ln = lose ? N(lose.team?.displayName||lose.team?.name||'') : '';
 
-    const isNCG = round === 'ncg';
-    const isFF  = round === 'ff';
-    const isEE  = round === 'e8';
+    // Detect region for regional rounds
+    const region = detectRegion(notes);
 
-    if      (isNCG&&wn) { ch=wn; sm.add(wn); if(ln)sm.add(ln); ff.add(wn); if(ln)ff.add(ln); }
-    else if (isFF &&wn) { sm.add(wn); ff.add(wn); if(ln)ff.add(ln); }
-    else if (isEE &&wn) { ff.add(wn); }
+    // Track winners by round and region
+    if (round === 'ncg' && wn) {
+      ch = wn;
+      sm.add(wn); if(ln) sm.add(ln);
+      ff.add(wn); if(ln) ff.add(ln);
+      winners.ncg = wn;
+      winners.ff.add(wn); if(ln) winners.ff.add(ln);
+    } else if (round === 'ff' && wn) {
+      sm.add(wn);
+      ff.add(wn); if(ln) ff.add(ln);
+      winners.ff.add(wn);
+    } else if (round === 'e8' && wn) {
+      ff.add(wn);
+      if (region) winners.e8[region] = wn;
+    } else if (round === 's16' && wn && region) {
+      winners.s16[region].add(wn);
+    } else if (round === 'r32' && wn && region) {
+      winners.r32[region].add(wn);
+    } else if (round === 'r64' && wn && region) {
+      winners.r64[region].add(wn);
+    }
   }
+
+  // Convert Sets to Arrays for state
+  S.winners = {
+    r64: { east:[...winners.r64.east], west:[...winners.r64.west], midwest:[...winners.r64.midwest], south:[...winners.r64.south] },
+    r32: { east:[...winners.r32.east], west:[...winners.r32.west], midwest:[...winners.r32.midwest], south:[...winners.r32.south] },
+    s16: { east:[...winners.s16.east], west:[...winners.s16.west], midwest:[...winners.s16.midwest], south:[...winners.s16.south] },
+    e8:  winners.e8,
+    ff:  [...winners.ff],
+    ncg: winners.ncg,
+  };
   S.ff=[...ff].filter(Boolean);
   S.semis=[...sm].filter(Boolean);
   S.champ=ch;
@@ -913,16 +1222,48 @@ function renderRoundTracker() {
 }
 
 function renderPickGrid(sc) {
+  // Count correct picks per round for each model
+  const countCorrect = (id) => {
+    const d = sc[id].d;
+    let counts = { r64:0, r32:0, s16:0, e8:0, ff:0, ncg:0 };
+    for (const region of REGIONS) {
+      counts.r64 += (d.r64?.[region]||[]).filter(s=>s==='correct').length;
+      counts.r32 += (d.r32?.[region]||[]).filter(s=>s==='correct').length;
+      counts.s16 += (d.s16?.[region]||[]).filter(s=>s==='correct').length;
+      if (d.e8?.[region] === 'correct') counts.e8++;
+    }
+    counts.ff = (d.ff||[]).filter(s=>s==='correct').length;
+    counts.ncg = d.champ === 'correct' ? 1 : 0;
+    return counts;
+  };
+
   document.getElementById('pick-grid').innerHTML=ORDER.map(id=>{
     const p=PICKS[id], d=sc[id].d;
-    const ffRows=Object.entries(p.ff).map(([r,team])=>{
-      const st=d.ff[r]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
+    const counts = countCorrect(id);
+
+    // Round summaries
+    const roundSummary = (round, total, pts) => {
+      const correct = counts[round];
+      const st = correct > 0 ? 'has-correct' : '';
+      return `<div class="pick-round-summary ${st}">
+        <span class="prs-name">${round.toUpperCase()}</span>
+        <span class="prs-score">${correct}/${total}</span>
+        <span class="prs-pts">${correct * pts} pts</span>
+      </div>`;
+    };
+
+    // Final Four picks (e8 = region winners)
+    const ffRows=Object.entries(p.e8).map(([r,team])=>{
+      const st=d.e8[r]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
       return `<div class="pick-row"><span class="pick-region">${r.charAt(0).toUpperCase()+r.slice(1)}</span><span class="pick-team ${st}">${team}</span><div class="pick-badge ${st}">${b}</div></div>`;
     }).join('');
-    const sfRows=p.sf.map((team,i)=>{
-      const st=d.sf[i]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
+
+    // Semifinal picks (ff = Final Four game winners)
+    const sfRows=(p.ff||[]).map((team,i)=>{
+      const st=d.ff[i]||'pending', b=st==='correct'?'✓':st==='incorrect'?'✗':'·';
       return `<div class="pick-row"><span class="pick-region">SF ${i+1}</span><span class="pick-team ${st}">${team}</span><div class="pick-badge ${st}">${b}</div></div>`;
     }).join('');
+
     const cs=d.champ||'pending', champColor=cs==='pending'?`color:${p.color}`:'';
     return `<div class="pick-card">
       <div class="pc-head">
@@ -931,6 +1272,16 @@ function renderPickGrid(sc) {
         <div class="pc-score-badge">${sc[id].pts>0?sc[id].pts:'—'}</div>
       </div>
       <div class="pc-body">
+        <div class="pc-section-label">Round Progress</div>
+        <div class="pick-round-grid">
+          ${roundSummary('r64', 32, PTS.r64)}
+          ${roundSummary('r32', 16, PTS.r32)}
+          ${roundSummary('s16', 8, PTS.s16)}
+          ${roundSummary('e8', 4, PTS.e8)}
+          ${roundSummary('ff', 2, PTS.ff)}
+          ${roundSummary('ncg', 1, PTS.ncg)}
+        </div>
+        <div class="pick-section-gap"></div>
         <div class="pc-section-label">Final Four</div>${ffRows}
         <div class="pick-section-gap"></div>
         <div class="pc-section-label">Semifinals</div>${sfRows}
@@ -966,8 +1317,8 @@ function renderMatrix() {
   const hdr=`<thead><tr><th></th>${ORDER.map(id=>`<th style="color:${PICKS[id].color}">${PICKS[id].name}</th>`).join('')}</tr></thead>`;
   const bodyRows=regions.map(r=>{
     const cells=ORDER.map(id=>{
-      const team=PICKS[id].ff[r];
-      const cnt=ORDER.filter(oid=>PICKS[oid].ff[r]===team).length;
+      const team=PICKS[id].e8[r]; // e8 contains Final Four picks per region
+      const cnt=ORDER.filter(oid=>PICKS[oid].e8[r]===team).length;
       return `<td class="${cnt>=3?'cell-agree':cnt===1?'cell-disagree':''}">${team}</td>`;
     }).join('');
     return `<tr><td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:10px">${r.charAt(0).toUpperCase()+r.slice(1)}</td>${cells}</tr>`;
@@ -983,9 +1334,9 @@ function renderMatrix() {
   const consCells=ORDER.map(id=>{
     let agree=0;
     regions.forEach(r=>{
-      const myT=PICKS[id].ff[r];
-      const myCnt=ORDER.filter(x=>PICKS[x].ff[r]===myT).length;
-      const maxCnt=Math.max(...ORDER.map(oid=>ORDER.filter(x=>PICKS[x].ff[r]===PICKS[oid].ff[r]).length));
+      const myT=PICKS[id].e8[r];
+      const myCnt=ORDER.filter(x=>PICKS[x].e8[r]===myT).length;
+      const maxCnt=Math.max(...ORDER.map(oid=>ORDER.filter(x=>PICKS[x].e8[r]===PICKS[oid].e8[r]).length));
       if(myCnt===maxCnt) agree++;
     });
     const myC=PICKS[id].champ;

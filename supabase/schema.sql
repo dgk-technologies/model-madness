@@ -17,10 +17,11 @@ CREATE SCHEMA IF NOT EXISTS model_madness;
 
 CREATE TABLE model_madness.tournament_state (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1), -- Ensures single row
-  final_four TEXT[] DEFAULT '{}',  -- Array of team names
-  semis TEXT[] DEFAULT '{}',       -- Teams in championship game
+  final_four TEXT[] DEFAULT '{}',  -- Array of team names (legacy)
+  semis TEXT[] DEFAULT '{}',       -- Teams in championship game (legacy)
   champion TEXT,                   -- Winner
   rounds JSONB DEFAULT '{"r64":0,"r32":0,"s16":0,"e8":0,"ff":0,"ncg":0}',
+  winners JSONB DEFAULT '{"r64":{"east":[],"west":[],"midwest":[],"south":[]},"r32":{"east":[],"west":[],"midwest":[],"south":[]},"s16":{"east":[],"west":[],"midwest":[],"south":[]},"e8":{"east":null,"west":null,"midwest":null,"south":null},"ff":[],"ncg":null}',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   updated_by TEXT -- 'espn' or 'manual'
 );

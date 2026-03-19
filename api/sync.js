@@ -56,6 +56,26 @@ export default async function handler(req, res) {
     let champion = null;
     const rounds = { r64: 0, r32: 0, s16: 0, e8: 0, ff: 0, ncg: 0 };
 
+    // Track winners by round and region for full bracket scoring
+    const winners = {
+      r64: { east: new Set(), west: new Set(), midwest: new Set(), south: new Set() },
+      r32: { east: new Set(), west: new Set(), midwest: new Set(), south: new Set() },
+      s16: { east: new Set(), west: new Set(), midwest: new Set(), south: new Set() },
+      e8:  { east: null, west: null, midwest: null, south: null },
+      ff:  new Set(),
+      ncg: null,
+    };
+
+    // Region detection from notes
+    const detectRegion = (notes) => {
+      const n = notes.toLowerCase();
+      if (n.includes('east')) return 'east';
+      if (n.includes('west')) return 'west';
+      if (n.includes('midwest')) return 'midwest';
+      if (n.includes('south')) return 'south';
+      return null;
+    };
+
     for (const ev of (data.events || [])) {
       const comp = ev.competitions?.[0];
       if (!comp) continue;
@@ -86,6 +106,7 @@ export default async function handler(req, res) {
 
       const wn = normalize(win.team?.displayName || win.team?.name || '');
       const ln = lose ? normalize(lose.team?.displayName || lose.team?.name || '') : '';
+      const region = detectRegion(notes);
 
       if (round === 'ncg' && wn) {
         champion = wn;
@@ -93,14 +114,35 @@ export default async function handler(req, res) {
         if (ln) semis.add(ln);
         ff.add(wn);
         if (ln) ff.add(ln);
+        winners.ncg = wn;
+        winners.ff.add(wn);
+        if (ln) winners.ff.add(ln);
       } else if (round === 'ff' && wn) {
         semis.add(wn);
         ff.add(wn);
         if (ln) ff.add(ln);
+        winners.ff.add(wn);
       } else if (round === 'e8' && wn) {
         ff.add(wn);
+        if (region) winners.e8[region] = wn;
+      } else if (round === 's16' && wn && region) {
+        winners.s16[region].add(wn);
+      } else if (round === 'r32' && wn && region) {
+        winners.r32[region].add(wn);
+      } else if (round === 'r64' && wn && region) {
+        winners.r64[region].add(wn);
       }
     }
+
+    // Convert Sets to Arrays for storage
+    const winnersJson = {
+      r64: { east: [...winners.r64.east], west: [...winners.r64.west], midwest: [...winners.r64.midwest], south: [...winners.r64.south] },
+      r32: { east: [...winners.r32.east], west: [...winners.r32.west], midwest: [...winners.r32.midwest], south: [...winners.r32.south] },
+      s16: { east: [...winners.s16.east], west: [...winners.s16.west], midwest: [...winners.s16.midwest], south: [...winners.s16.south] },
+      e8:  winners.e8,
+      ff:  [...winners.ff],
+      ncg: winners.ncg,
+    };
 
     // Update Supabase
     const { error } = await supabase
@@ -111,6 +153,7 @@ export default async function handler(req, res) {
         semis: [...semis].filter(Boolean),
         champion: champion,
         rounds: rounds,
+        winners: winnersJson,
         updated_by: 'espn-sync'
       })
       .eq('id', 1);
@@ -125,7 +168,8 @@ export default async function handler(req, res) {
         final_four: [...ff],
         semis: [...semis],
         champion,
-        rounds
+        rounds,
+        winners: winnersJson
       }
     });
   } catch (e) {

@@ -36,12 +36,17 @@ Every AI picked a **different champion** — making this a true four-way battle.
 
 ## How Scoring Works
 
-| Round | Points |
-|-------|--------|
-| Final Four pick | 10 pts |
-| Semifinal winner | 20 pts |
-| Champion | 40 pts |
-| **Maximum** | **120 pts** |
+Full 63-game bracket scoring with points doubling each round:
+
+| Round | Games | Points Each | Max Points |
+|-------|-------|-------------|------------|
+| Round of 64 | 32 | 1 pt | 32 pts |
+| Round of 32 | 16 | 2 pts | 32 pts |
+| Sweet 16 | 8 | 4 pts | 32 pts |
+| Elite 8 | 4 | 8 pts | 32 pts |
+| Final Four | 2 | 16 pts | 32 pts |
+| Championship | 1 | 32 pts | 32 pts |
+| **Total** | **63** | | **192 pts** |
 
 ## Tech Stack
 
