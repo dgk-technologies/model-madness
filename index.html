@@ -45,6 +45,14 @@ body::after {
   opacity: .35;
 }
 
+/* CONFETTI */
+.confetti-container { position:fixed; inset:0; pointer-events:none; z-index:1001; overflow:hidden; }
+.confetti { position:absolute; width:10px; height:10px; opacity:0; animation:confetti-fall 4s ease-out forwards; }
+@keyframes confetti-fall {
+  0% { opacity:1; transform:translateY(-20px) rotate(0deg); }
+  100% { opacity:0; transform:translateY(100vh) rotate(720deg); }
+}
+
 /* HEADER */
 header {
   position: relative; text-align: center;
@@ -79,10 +87,16 @@ h1 em { color:var(--accent); font-style:normal; }
 
 /* MAIN */
 main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
-.sh { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; }
+.sh { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
 .sh h2 { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:.06em; }
 .sh p { font-size:12px; color:var(--muted); }
+.sh-right { margin-left:auto; }
 .spacer { height:48px; }
+
+/* SHARE BUTTON */
+.share-btn { background:transparent; border:1px solid var(--border); border-radius:5px; padding:5px 12px; font-size:11px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; display:inline-flex; align-items:center; gap:6px; }
+.share-btn:hover { border-color:var(--border2); color:var(--text); }
+.share-btn svg { width:14px; height:14px; }
 
 /* RESULTS STRIP */
 .results-strip { background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:10px 16px; margin-bottom:36px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -114,6 +128,21 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .lb-champ-tag { margin-top:10px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
 .lb-champ-tag strong { color:var(--text); font-weight:500; }
 .lb-card.rank-1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--gold); opacity:.6; }
+
+/* ROUND TRACKER */
+.round-tracker { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:48px; }
+.rt-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+.rt-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+.rt-status { font-size:11px; color:var(--muted); }
+.rt-rounds { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+@media(max-width:700px){ .rt-rounds{grid-template-columns:repeat(3,1fr);} }
+.rt-round { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+.rt-round-name { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.rt-round-games { font-family:'Bebas Neue',sans-serif; font-size:28px; line-height:1; color:var(--text); }
+.rt-round-label { font-size:10px; color:var(--dim); margin-top:4px; }
+.rt-round.active { border-color:var(--accent); background:rgba(255,107,43,.05); }
+.rt-round.active .rt-round-name { color:var(--accent); }
+.rt-round.complete .rt-round-games { color:var(--ok); }
 
 /* PICK GRID */
 .pick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:48px; }
@@ -157,6 +186,7 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .consensus-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
 .consensus-team { font-size:13px; font-weight:500; }
 .consensus-pct { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+.consensus-pct.live { color:var(--ok); }
 .consensus-bar-track { height:6px; background:var(--s3); border-radius:3px; overflow:hidden; }
 .consensus-bar-fill { height:100%; border-radius:3px; transition:width 1s cubic-bezier(.4,0,.2,1); width:0; }
 .consensus-ais { display:flex; gap:4px; margin-top:5px; }
@@ -183,6 +213,7 @@ table.matrix tr:last-child td { border-bottom:none; }
 /* FOOTER */
 footer { border-top:1px solid var(--border); padding:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .footer-note { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:.04em; }
+.footer-btns { display:flex; gap:8px; }
 .footer-export { background:transparent; border:1px solid var(--border); border-radius:5px; padding:5px 12px; font-size:11px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
 .footer-export:hover { border-color:var(--border2); color:var(--text); }
 
@@ -214,6 +245,8 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 </style>
 </head>
 <body>
+
+<div class="confetti-container" id="confetti-container"></div>
 
 <header>
   <div class="eyebrow">NCAA March Madness · 2026 · An Experiment</div>
@@ -262,8 +295,20 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
     <button class="rs-btn" onclick="openOverride()">✎ Override</button>
   </div>
 
-  <div class="sh"><h2>Standings</h2><p>Real-time scores as the tournament plays out — picks were locked in on March 19</p></div>
+  <div class="sh">
+    <h2>Standings</h2>
+    <p>Real-time scores as the tournament plays out — picks were locked in on March 19</p>
+    <div class="sh-right">
+      <button class="share-btn" onclick="shareToX()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
   <div class="lb-wrap"><div class="lb-podium" id="lb-podium"></div></div>
+
+  <div class="sh"><h2>Tournament Progress</h2><p>Round-by-round breakdown from ESPN</p></div>
+  <div class="round-tracker" id="round-tracker"></div>
 
   <div class="sh"><h2>The Picks</h2><p>Each AI was given the same prompt on March 19, 2026 — the day the first round tipped off</p></div>
   <div class="pick-grid" id="pick-grid"></div>
@@ -271,9 +316,9 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
   <div class="sh"><h2>AI vs The Public</h2><p>How do the AI picks compare to ESPN bracket challenge pick percentages?</p></div>
   <div class="comparison-grid">
     <div class="comp-card">
-      <div class="comp-title">Champion pick — AI vs public %</div>
+      <div class="comp-title">Champion pick — AI vs public % <span id="live-pct-badge" style="font-size:9px;color:var(--ok);margin-left:6px;display:none;">LIVE</span></div>
       <div id="consensus-bars"></div>
-      <div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;">Source: ESPN Bracket Challenge public pick data</div>
+      <div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;" id="pct-source">Source: ESPN Bracket Challenge public pick data</div>
     </div>
     <div class="comp-card">
       <div class="comp-title">Pick agreement matrix</div>
@@ -286,9 +331,15 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 </main>
 
 <footer>
-  <span class="footer-note">modelmadness.com · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
-  <button class="footer-export" onclick="doExport()">↓ Export Summary</button>
+  <span class="footer-note">modelmadness.ai · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
+  <div class="footer-btns">
+    <button class="footer-export" onclick="shareToX()">Share on X</button>
+    <button class="footer-export" onclick="doExport()">↓ Export</button>
+  </div>
 </footer>
+<div style="text-align:center;padding:16px 24px 32px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.04em;">
+  Built with love using <a href="https://claude.ai/claude-code" style="color:var(--claude);text-decoration:none;">Claude Code</a>
+</div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="closeOverride(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -341,11 +392,12 @@ const ORDER = ['claude','chatgpt','gemini','grok'];
 const MAX   = 120; // 4×10 + 2×20 + 1×40
 
 // ESPN Bracket Challenge approximate public pick percentages for champion
-// Source: ESPN BPI / bracket challenge (updated manually if needed)
-const PUB_PCT = {
+// Will be updated live if ESPN API is available
+let PUB_PCT = {
   Duke:8, Arizona:18, Michigan:14, Florida:12,
   UConn:9, Purdue:4, Houston:6, Other:5,
 };
+let livePctLoaded = false;
 
 // ─── LIVE STATE ────────────────────────────────────────────────────────────
 const S = {
@@ -354,6 +406,9 @@ const S = {
   champ:  null,
   status: 'loading',
   lastFetch: null,
+  rounds: { r64:0, r32:0, s16:0, e8:0, ff:0, ncg:0 }, // games completed per round
+  roundsTotal: { r64:32, r32:16, s16:8, e8:4, ff:2, ncg:1 },
+  champShown: false, // track if we've shown confetti
 };
 
 // Name normalization
@@ -368,6 +423,54 @@ const NORM = {
   'iowa state cyclones':'Iowa St','iowa state':'Iowa St',
 };
 const N = s => s ? (NORM[s.toLowerCase().trim()] || s.trim()) : '';
+
+// ─── CONFETTI ──────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#ffd166', '#ff6b2b', '#4ade80', '#5f8df0', '#cc785c', '#10a37f'];
+  const shapes = ['square', 'circle'];
+
+  for (let i = 0; i < 150; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 2 + 's';
+    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+    if (shapes[Math.floor(Math.random() * shapes.length)] === 'circle') {
+      confetti.style.borderRadius = '50%';
+    }
+    confetti.style.width = (5 + Math.random() * 10) + 'px';
+    confetti.style.height = confetti.style.width;
+    container.appendChild(confetti);
+
+    setTimeout(() => confetti.remove(), 6000);
+  }
+}
+
+// ─── SHARE TO X ────────────────────────────────────────────────────────────
+function shareToX() {
+  const sc = allScores();
+  const sorted = [...ORDER].sort((a,b) => sc[b].pts - sc[a].pts);
+
+  let text = `Model Madness 2026 Standings:\n\n`;
+  sorted.forEach((id, i) => {
+    const emoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '4️⃣';
+    text += `${emoji} ${PICKS[id].name}: ${sc[id].pts} pts\n`;
+  });
+
+  if (S.champ) {
+    text += `\n🏆 Champion: ${S.champ}`;
+  } else if (S.ff.length > 0) {
+    text += `\n🏀 Final Four: ${S.ff.join(', ')}`;
+  }
+
+  text += `\n\nTrack the AI bracket battle live:`;
+
+  const url = encodeURIComponent(window.location.href);
+  const tweet = encodeURIComponent(text);
+  window.open(`https://twitter.com/intent/tweet?text=${tweet}&url=${url}`, '_blank', 'width=550,height=420');
+}
 
 // ─── SCORING ───────────────────────────────────────────────────────────────
 function score(id) {
@@ -402,6 +505,8 @@ function allScores() {
 
 // ─── ESPN FETCH ────────────────────────────────────────────────────────────
 const ESPN_URL='https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+// ESPN "Who Picked Whom" endpoint (public bracket challenge data)
+const ESPN_WPW_URL='https://gambit-api.fantasy.espn.com/apis/v1/challenges/tournaments/toc-2026-mens-bracket/whoPickedWhom';
 
 async function doFetch() {
   setStatus('loading');
@@ -416,27 +521,87 @@ async function doFetch() {
     S.status='error';
     setStatus('error');
   }
+
+  // Try to fetch live public pick percentages
+  fetchLivePickPct();
+
   render();
+
+  // Check for champion confetti
+  if (S.champ && !S.champShown) {
+    S.champShown = true;
+    setTimeout(launchConfetti, 500);
+  }
+}
+
+async function fetchLivePickPct() {
+  try {
+    const r = await fetch(ESPN_WPW_URL, {cache:'no-store'});
+    if (!r.ok) return;
+    const data = await r.json();
+
+    // ESPN returns pick percentages by team for championship
+    if (data.championPicks) {
+      const newPct = {};
+      for (const [teamId, info] of Object.entries(data.championPicks)) {
+        const teamName = N(info.teamName || info.name || '');
+        if (teamName && info.percentage) {
+          newPct[teamName] = Math.round(info.percentage * 100);
+        }
+      }
+      if (Object.keys(newPct).length > 0) {
+        PUB_PCT = {...PUB_PCT, ...newPct};
+        livePctLoaded = true;
+        document.getElementById('live-pct-badge').style.display = 'inline';
+        document.getElementById('pct-source').textContent = 'Source: ESPN Bracket Challenge (live)';
+      }
+    }
+  } catch(e) {
+    console.warn('Live pick % unavailable:', e);
+  }
 }
 
 function parseESPN(data) {
   const ff=new Set(S.ff), sm=new Set(S.semis);
   let ch=S.champ;
+
+  // Reset round counts
+  const rounds = { r64:0, r32:0, s16:0, e8:0, ff:0, ncg:0 };
+
   for (const ev of (data.events||[])) {
-    if (!ev.status?.type?.completed) continue;
     const comp = ev.competitions?.[0];
     if (!comp) continue;
+
+    const notes = (comp.notes||[]).map(n=>(n.headline||'').toLowerCase()).join(' ');
+    const ra = (comp.type?.abbreviation||'').toString().toUpperCase();
+
+    // Determine round
+    let round = null;
+    if (ra==='NCG'||ra==='NC'||notes.includes('national championship')||notes.includes('championship game')) round = 'ncg';
+    else if (ra==='FF'||ra==='NSF'||notes.includes('final four')||notes.includes('semifinal')) round = 'ff';
+    else if (ra==='EE'||ra==='RE'||notes.includes('elite eight')||notes.includes('regional final')) round = 'e8';
+    else if (ra==='SS'||ra==='S16'||notes.includes('sweet 16')||notes.includes('sweet sixteen')||notes.includes('regional semifinal')) round = 's16';
+    else if (ra==='2R'||ra==='R32'||notes.includes('second round')||notes.includes('round of 32')) round = 'r32';
+    else if (ra==='1R'||ra==='R64'||notes.includes('first round')||notes.includes('round of 64')) round = 'r64';
+
+    // Count completed games per round
+    if (round && ev.status?.type?.completed) {
+      rounds[round]++;
+    }
+
+    if (!ev.status?.type?.completed) continue;
+
     const comps = comp.competitors||[];
     const win  = comps.find(c=>c.winner);
     const lose = comps.find(c=>!c.winner);
     if (!win) continue;
     const wn = N(win.team?.displayName||win.team?.name||'');
     const ln = lose ? N(lose.team?.displayName||lose.team?.name||'') : '';
-    const notes = (comp.notes||[]).map(n=>(n.headline||'').toLowerCase()).join(' ');
-    const ra = (comp.type?.abbreviation||'').toString().toUpperCase();
-    const isNCG = ra==='NCG'||ra==='NC'||notes.includes('national championship')||notes.includes('championship game');
-    const isFF  = ra==='FF'||ra==='NSF'||notes.includes('final four')||notes.includes('semifinal');
-    const isEE  = ra==='EE'||ra==='RE'||notes.includes('elite eight')||notes.includes('regional final');
+
+    const isNCG = round === 'ncg';
+    const isFF  = round === 'ff';
+    const isEE  = round === 'e8';
+
     if      (isNCG&&wn) { ch=wn; sm.add(wn); if(ln)sm.add(ln); ff.add(wn); if(ln)ff.add(ln); }
     else if (isFF &&wn) { sm.add(wn); ff.add(wn); if(ln)ff.add(ln); }
     else if (isEE &&wn) { ff.add(wn); }
@@ -444,6 +609,7 @@ function parseESPN(data) {
   S.ff=[...ff].filter(Boolean);
   S.semis=[...sm].filter(Boolean);
   S.champ=ch;
+  S.rounds=rounds;
 }
 
 // ─── RENDER ────────────────────────────────────────────────────────────────
@@ -451,6 +617,7 @@ function render() {
   const sc = allScores();
   renderTicker(sc);
   renderLeaderboard(sc);
+  renderRoundTracker();
   renderPickGrid(sc);
   renderConsensus();
   renderMatrix();
@@ -480,6 +647,49 @@ function renderLeaderboard(sc) {
     </div>`;
   }).join('');
   setTimeout(()=>{ document.querySelectorAll('.lb-bar-fill').forEach(el=>{ el.style.width=el.dataset.w+'%'; }); },60);
+}
+
+function renderRoundTracker() {
+  const roundLabels = {
+    r64: { name: 'Round of 64', short: 'R64' },
+    r32: { name: 'Round of 32', short: 'R32' },
+    s16: { name: 'Sweet 16', short: 'S16' },
+    e8:  { name: 'Elite 8', short: 'E8' },
+    ff:  { name: 'Final Four', short: 'FF' },
+    ncg: { name: 'Championship', short: 'NCG' },
+  };
+
+  const roundOrder = ['r64', 'r32', 's16', 'e8', 'ff', 'ncg'];
+  let currentRound = null;
+
+  // Find current round (first incomplete)
+  for (const r of roundOrder) {
+    if (S.rounds[r] < S.roundsTotal[r]) {
+      currentRound = r;
+      break;
+    }
+  }
+
+  const totalGames = Object.values(S.rounds).reduce((a,b) => a+b, 0);
+  const totalPossible = Object.values(S.roundsTotal).reduce((a,b) => a+b, 0);
+
+  document.getElementById('round-tracker').innerHTML = `
+    <div class="rt-header">
+      <div class="rt-title">Tournament Progress</div>
+      <div class="rt-status">${totalGames} of ${totalPossible} games complete</div>
+    </div>
+    <div class="rt-rounds">
+      ${roundOrder.map(r => {
+        const complete = S.rounds[r] >= S.roundsTotal[r];
+        const active = r === currentRound;
+        return `<div class="rt-round${active ? ' active' : ''}${complete ? ' complete' : ''}">
+          <div class="rt-round-name">${roundLabels[r].short}</div>
+          <div class="rt-round-games">${S.rounds[r]}/${S.roundsTotal[r]}</div>
+          <div class="rt-round-label">${roundLabels[r].name}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
 }
 
 function renderPickGrid(sc) {
@@ -522,8 +732,9 @@ function renderConsensus() {
     const color=pickers.length?PICKS[pickers[0]].color:'var(--muted)';
     const dots=pickers.map(id=>`<div class="consensus-ai-dot" style="background:${PICKS[id].color}22;color:${PICKS[id].color}">${PICKS[id].initial}</div>`).join('');
     const chk=S.champ?(S.champ.toLowerCase()===team.toLowerCase()?' ✓':''):'';
+    const liveClass = livePctLoaded ? ' live' : '';
     return `<div class="consensus-item">
-      <div class="consensus-head"><span class="consensus-team">${team}${chk}</span><span class="consensus-pct">${pct}% public</span></div>
+      <div class="consensus-head"><span class="consensus-team">${team}${chk}</span><span class="consensus-pct${liveClass}">${pct}% public</span></div>
       <div class="consensus-bar-track"><div class="consensus-bar-fill" style="background:${color}" data-w="${pct}"></div></div>
       <div class="consensus-ais">${dots}</div>
     </div>`;
@@ -621,6 +832,11 @@ function applyOverride() {
     if(v.champion!==undefined) S.champ=v.champion?N(v.champion):null;
     S.status='manual'; closeOverride(); render(); setStatus('manual');
     toast('Override applied ✓');
+    // Trigger confetti if champion set
+    if (S.champ && !S.champShown) {
+      S.champShown = true;
+      setTimeout(launchConfetti, 300);
+    }
   } catch(e){ toast('Invalid JSON: '+e.message); }
 }
 
@@ -628,16 +844,23 @@ function applyOverride() {
 function doExport() {
   const sc=allScores();
   const sorted=[...ORDER].sort((a,b)=>sc[b].pts-sc[a].pts);
-  const lines=['=== AI BRACKET BATTLE 2026 ===',`Exported: ${new Date().toLocaleString()}`,'','--- STANDINGS ---',
+  const lines=['=== MODEL MADNESS 2026 ===',`Exported: ${new Date().toLocaleString()}`,'','--- STANDINGS ---',
     ...sorted.map((id,i)=>`${i+1}. ${PICKS[id].name}: ${sc[id].pts} pts — Champion pick: ${PICKS[id].champ}`),
     '','--- CONFIRMED RESULTS ---',
     `Final Four: ${S.ff.join(', ')||'TBD'}`,
     `Title game: ${S.semis.join(' vs ')||'TBD'}`,
     `Champion: ${S.champ||'TBD'}`,
+    '','--- ROUND PROGRESS ---',
+    `Round of 64: ${S.rounds.r64}/${S.roundsTotal.r64}`,
+    `Round of 32: ${S.rounds.r32}/${S.roundsTotal.r32}`,
+    `Sweet 16: ${S.rounds.s16}/${S.roundsTotal.s16}`,
+    `Elite 8: ${S.rounds.e8}/${S.roundsTotal.e8}`,
+    `Final Four: ${S.rounds.ff}/${S.roundsTotal.ff}`,
+    `Championship: ${S.rounds.ncg}/${S.roundsTotal.ncg}`,
   ];
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain'}));
-  a.download='ai-bracket-battle-2026.txt'; a.click();
+  a.download='model-madness-2026.txt'; a.click();
 }
 
 // ─── TOAST ─────────────────────────────────────────────────────────────────
