@@ -6,19 +6,86 @@ const { createClient } = require('@supabase/supabase-js');
 
 const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
 
-// Team name normalization
+// Team name normalization (ESPN full names → short names used in PICKS/BRACKET)
 const NORM = {
+  // East Region
   'duke blue devils': 'Duke', 'duke': 'Duke',
+  'siena saints': 'Siena', 'siena': 'Siena',
+  'ohio state buckeyes': 'Ohio State', 'ohio state': 'Ohio State', 'ohio st': 'Ohio State',
+  'tcu horned frogs': 'TCU', 'tcu': 'TCU',
+  "st. john's red storm": "St. John's", "saint john's red storm": "St. John's", "st. john's": "St. John's", "st john's": "St. John's",
+  'northern iowa panthers': 'Northern Iowa', 'northern iowa': 'Northern Iowa', 'uni': 'Northern Iowa',
+  'kansas jayhawks': 'Kansas', 'kansas': 'Kansas',
+  'cal baptist lancers': 'Cal Baptist', 'california baptist lancers': 'Cal Baptist', 'cal baptist': 'Cal Baptist',
+  'louisville cardinals': 'Louisville', 'louisville': 'Louisville',
+  'south florida bulls': 'South Florida', 'south florida': 'South Florida', 'usf bulls': 'South Florida', 'usf': 'South Florida',
+  'michigan state spartans': 'Michigan State', 'michigan state': 'Michigan State', 'michigan st': 'Michigan State', 'msu': 'Michigan State',
+  'north dakota state bison': 'North Dakota State', 'north dakota state': 'North Dakota State', 'north dakota st': 'North Dakota State', 'ndsu': 'North Dakota State',
+  'ucla bruins': 'UCLA', 'ucla': 'UCLA',
+  'ucf knights': 'UCF', 'ucf': 'UCF', 'central florida knights': 'UCF',
+  'uconn huskies': 'UConn', 'connecticut huskies': 'UConn', 'connecticut': 'UConn', 'uconn': 'UConn',
+  'furman paladins': 'Furman', 'furman': 'Furman',
+
+  // West Region
   'arizona wildcats': 'Arizona', 'arizona': 'Arizona',
-  'michigan wolverines': 'Michigan', 'michigan': 'Michigan',
-  'florida gators': 'Florida', 'florida': 'Florida',
-  'uconn huskies': 'UConn', 'connecticut': 'UConn', 'uconn': 'UConn',
+  'liu sharks': 'LIU', 'long island university sharks': 'LIU', 'liu': 'LIU',
+  'villanova wildcats': 'Villanova', 'villanova': 'Villanova',
+  'utah state aggies': 'Utah State', 'utah state': 'Utah State', 'utah st': 'Utah State',
+  'wisconsin badgers': 'Wisconsin', 'wisconsin': 'Wisconsin',
+  'high point panthers': 'High Point', 'high point': 'High Point',
+  'arkansas razorbacks': 'Arkansas', 'arkansas': 'Arkansas',
+  "hawai'i rainbow warriors": "Hawai'i", 'hawaii rainbow warriors': "Hawai'i", "hawai'i": "Hawai'i", 'hawaii': "Hawai'i",
+  'byu cougars': 'BYU', 'brigham young cougars': 'BYU', 'byu': 'BYU',
+  'texas longhorns': 'Texas', 'texas': 'Texas',
+  'gonzaga bulldogs': 'Gonzaga', 'gonzaga': 'Gonzaga',
+  'kennesaw state owls': 'Kennesaw State', 'kennesaw state': 'Kennesaw State',
+  'miami hurricanes': 'Miami (FL)', 'miami (fl) hurricanes': 'Miami (FL)', 'miami': 'Miami (FL)',
+  'missouri tigers': 'Missouri', 'missouri': 'Missouri', 'mizzou': 'Missouri',
   'purdue boilermakers': 'Purdue', 'purdue': 'Purdue',
+  'queens royals': 'Queens', 'queens': 'Queens',
+
+  // Midwest Region
+  'michigan wolverines': 'Michigan', 'michigan': 'Michigan',
+  'howard bison': 'Howard', 'howard': 'Howard',
+  'georgia bulldogs': 'Georgia', 'georgia': 'Georgia',
+  'saint louis billikens': 'Saint Louis', 'st. louis billikens': 'Saint Louis', 'saint louis': 'Saint Louis', 'st. louis': 'Saint Louis',
+  'texas tech red raiders': 'Texas Tech', 'texas tech': 'Texas Tech',
+  'akron zips': 'Akron', 'akron': 'Akron',
+  'alabama crimson tide': 'Alabama', 'alabama': 'Alabama',
+  'hofstra pride': 'Hofstra', 'hofstra': 'Hofstra',
+  'tennessee volunteers': 'Tennessee', 'tennessee': 'Tennessee',
+  'miami (oh) redhawks': 'Miami (Ohio)', 'miami (ohio) redhawks': 'Miami (Ohio)', 'miami ohio': 'Miami (Ohio)', 'miami (oh)': 'Miami (Ohio)',
+  'virginia cavaliers': 'Virginia', 'virginia': 'Virginia',
+  'wright state raiders': 'Wright State', 'wright state': 'Wright State',
+  'kentucky wildcats': 'Kentucky', 'kentucky': 'Kentucky',
+  'santa clara broncos': 'Santa Clara', 'santa clara': 'Santa Clara',
+  'iowa state cyclones': 'Iowa State', 'iowa state': 'Iowa State',
+  'tennessee state tigers': 'Tennessee State', 'tennessee state': 'Tennessee State',
+
+  // South Region
+  'florida gators': 'Florida', 'florida': 'Florida',
+  'prairie view a&m panthers': 'Prairie View A&M', 'prairie view a&m': 'Prairie View A&M', 'prairie view': 'Prairie View A&M',
+  'clemson tigers': 'Clemson', 'clemson': 'Clemson',
+  'iowa hawkeyes': 'Iowa', 'iowa': 'Iowa',
+  'vanderbilt commodores': 'Vanderbilt', 'vanderbilt': 'Vanderbilt', 'vandy': 'Vanderbilt',
+  'mcneese cowboys': 'McNeese', 'mcneese state cowboys': 'McNeese', 'mcneese': 'McNeese',
+  'nebraska cornhuskers': 'Nebraska', 'nebraska': 'Nebraska',
+  'troy trojans': 'Troy', 'troy': 'Troy',
+  'north carolina tar heels': 'North Carolina', 'north carolina': 'North Carolina', 'unc': 'North Carolina',
+  'vcu rams': 'VCU', 'virginia commonwealth rams': 'VCU', 'vcu': 'VCU',
+  'illinois fighting illini': 'Illinois', 'illinois': 'Illinois',
+  'penn quakers': 'Penn', 'pennsylvania quakers': 'Penn', 'penn': 'Penn',
+  "saint mary's gaels": "Saint Mary's", "st. mary's gaels": "Saint Mary's", "saint mary's": "Saint Mary's", "st. mary's": "Saint Mary's",
+  'texas a&m aggies': 'Texas A&M', 'texas a&m': 'Texas A&M',
   'houston cougars': 'Houston', 'houston': 'Houston',
-  'iowa state cyclones': 'Iowa St', 'iowa state': 'Iowa St',
+  'idaho vandals': 'Idaho', 'idaho': 'Idaho',
 };
 
-const normalize = (s) => s ? (NORM[s.toLowerCase().trim()] || s.trim()) : '';
+const normalize = (s) => {
+  if (!s) return '';
+  const key = s.toLowerCase().trim();
+  return NORM[key] || s.trim();
+};
 
 module.exports = async function handler(req, res) {
   // Verify this is a cron request or has auth
