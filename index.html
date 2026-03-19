@@ -418,7 +418,7 @@ const S = {
 };
 
 // ─── SUPABASE (optional persistence) ───────────────────────────────────────
-let supabase = null;
+let sbClient = null;
 
 async function initSupabase() {
   // Try local config first (for dev), then API (for Vercel)
@@ -437,7 +437,7 @@ async function initSupabase() {
 
   if (config?.url && config?.anonKey && window.supabase) {
     try {
-      supabase = window.supabase.createClient(config.url, config.anonKey);
+      sbClient = window.supabase.createClient(config.url, config.anonKey);
       console.log('Supabase initialized');
       return true;
     } catch(e) {
@@ -448,9 +448,9 @@ async function initSupabase() {
 }
 
 async function fetchFromSupabase() {
-  if (!supabase) return false;
+  if (!sbClient) return false;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .schema('model_madness')
       .from('tournament_state')
       .select('*')
