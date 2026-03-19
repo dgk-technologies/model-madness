@@ -89,8 +89,8 @@ export default async function handler(req, res) {
       else if (ra === 'FF' || ra === 'NSF' || notes.includes('final four') || notes.includes('semifinal')) round = 'ff';
       else if (ra === 'EE' || ra === 'RE' || notes.includes('elite eight') || notes.includes('regional final')) round = 'e8';
       else if (ra === 'SS' || ra === 'S16' || notes.includes('sweet 16') || notes.includes('sweet sixteen') || notes.includes('regional semifinal')) round = 's16';
-      else if (ra === '2R' || ra === 'R32' || notes.includes('second round') || notes.includes('round of 32')) round = 'r32';
-      else if (ra === '1R' || ra === 'R64' || notes.includes('first round') || notes.includes('round of 64')) round = 'r64';
+      else if (ra === '2R' || ra === 'R32' || notes.includes('second round') || notes.includes('2nd round') || notes.includes('round of 32')) round = 'r32';
+      else if (ra === '1R' || ra === 'R64' || notes.includes('first round') || notes.includes('1st round') || notes.includes('round of 64')) round = 'r64';
 
       // Count completed games
       if (round && ev.status?.type?.completed) {
