@@ -34,20 +34,20 @@
   --s1: #101012;
   --s2: #17171a;
   --s3: #1e1e22;
-  --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.12);
-  --text: #eeebe4;
-  --muted: #68665f;
-  --dim: #323230;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f5f5f3;
+  --muted: #9a9890;
+  --dim: #5a5a56;
   --accent: #ff6b2b;
   --gold: #ffd166;
   --ok: #4ade80;
   --bad: #f87171;
   --warn: #fbbf24;
-  --claude:  #cc785c;
-  --chatgpt: #10a37f;
-  --gemini:  #5f8df0;
-  --grok:    #c8d0e0;
+  --claude:  #e8a088;
+  --chatgpt: #34d399;
+  --gemini:  #7fa3f7;
+  --grok:    #d8e0f0;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -92,7 +92,8 @@ h1 em { color:var(--accent); font-style:normal; }
 .subtitle { margin-top:14px; color:var(--muted); font-size:13px; font-weight:300; }
 
 /* TICKER */
-.ticker { background:var(--s1); border-bottom:1px solid var(--border); padding:0 24px; height:44px; display:flex; align-items:center; gap:0; overflow:hidden; }
+.ticker { background:var(--s1); border-bottom:1px solid var(--border); }
+.ticker-inner { max-width:1320px; margin:0 auto; padding:0 20px; height:44px; display:flex; align-items:center; gap:0; overflow:hidden; }
 .ticker-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); padding-right:20px; border-right:1px solid var(--border); margin-right:20px; white-space:nowrap; flex-shrink:0; }
 .ticker-items { display:flex; gap:28px; align-items:center; flex:1; overflow:hidden; }
 .ticker-ai { display:flex; align-items:center; gap:8px; }
@@ -233,7 +234,8 @@ table.matrix tr:last-child td { border-bottom:none; }
 .insight-label strong { color:var(--text); font-weight:500; }
 
 /* FOOTER */
-footer { border-top:1px solid var(--border); padding:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+footer { border-top:1px solid var(--border); }
+.footer-inner { max-width:1320px; margin:0 auto; padding:24px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .footer-note { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:.04em; }
 .footer-btns { display:flex; gap:8px; }
 .footer-export { background:transparent; border:1px solid var(--border); border-radius:5px; padding:5px 12px; font-size:11px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
@@ -277,16 +279,18 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 </header>
 
 <div class="ticker">
-  <span class="ticker-label">Model Madness</span>
-  <div class="ticker-items">
-    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--claude)"></div><span class="ticker-name">Claude</span><span class="ticker-score" id="t-claude">—</span><span class="ticker-of">/ 120</span></div>
-    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--chatgpt)"></div><span class="ticker-name">ChatGPT</span><span class="ticker-score" id="t-chatgpt">—</span><span class="ticker-of">/ 120</span></div>
-    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--gemini)"></div><span class="ticker-name">Gemini</span><span class="ticker-score" id="t-gemini">—</span><span class="ticker-of">/ 120</span></div>
-    <div class="ticker-ai"><div class="ticker-dot" style="background:var(--grok)"></div><span class="ticker-name">Grok</span><span class="ticker-score" id="t-grok">—</span><span class="ticker-of">/ 120</span></div>
-  </div>
-  <div class="ticker-right">
-    <div class="live-dot" id="live-dot"></div>
-    <span class="live-label" id="live-label">Connecting…</span>
+  <div class="ticker-inner">
+    <span class="ticker-label">Model Madness</span>
+    <div class="ticker-items">
+      <div class="ticker-ai"><div class="ticker-dot" style="background:var(--claude)"></div><span class="ticker-name">Claude</span><span class="ticker-score" id="t-claude">—</span><span class="ticker-of">/ 120</span></div>
+      <div class="ticker-ai"><div class="ticker-dot" style="background:var(--chatgpt)"></div><span class="ticker-name">ChatGPT</span><span class="ticker-score" id="t-chatgpt">—</span><span class="ticker-of">/ 120</span></div>
+      <div class="ticker-ai"><div class="ticker-dot" style="background:var(--gemini)"></div><span class="ticker-name">Gemini</span><span class="ticker-score" id="t-gemini">—</span><span class="ticker-of">/ 120</span></div>
+      <div class="ticker-ai"><div class="ticker-dot" style="background:var(--grok)"></div><span class="ticker-name">Grok</span><span class="ticker-score" id="t-grok">—</span><span class="ticker-of">/ 120</span></div>
+    </div>
+    <div class="ticker-right">
+      <div class="live-dot" id="live-dot"></div>
+      <span class="live-label" id="live-label">Connecting…</span>
+    </div>
   </div>
 </div>
 
@@ -313,8 +317,6 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
   <div class="results-strip">
     <span class="rs-label">Live Results</span>
     <span class="rs-content" id="rs-content">Fetching from ESPN…</span>
-    <button class="rs-btn primary" onclick="doFetch()">↺ Refresh</button>
-    <button class="rs-btn" onclick="openOverride()">✎ Override</button>
   </div>
 
   <div class="sh">
@@ -353,26 +355,15 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 </main>
 
 <footer>
-  <span class="footer-note">modelmadness.ai · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
-  <div class="footer-btns">
-    <button class="footer-export" onclick="shareToX()">Share on X</button>
-    <button class="footer-export" onclick="doExport()">↓ Export</button>
-  </div>
-</footer>
-<div style="text-align:center;padding:16px 24px 32px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.04em;">
-  Built with love using <a href="https://claude.ai/code?utm_source=modelmadness&utm_medium=referral&utm_campaign=footer" style="color:var(--claude);text-decoration:none;" target="_blank" rel="noopener">Claude Code</a>
-</div>
-
-<div class="modal-overlay" id="modal-overlay" onclick="closeOverride(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h3>Manual Override</h3>
-    <p>ESPN's undocumented API sometimes changes structure. Use this to enter known results directly. Teams listed here will be scored immediately.</p>
-    <textarea id="override-input" spellcheck="false"></textarea>
-    <div class="modal-btns">
-      <button class="modal-btn modal-btn-primary" onclick="applyOverride()">Apply</button>
-      <button class="modal-btn modal-btn-cancel" onclick="closeOverride()">Cancel</button>
+  <div class="footer-inner">
+    <span class="footer-note">modelmadness.ai · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
+    <div class="footer-btns">
+      <button class="footer-export" onclick="shareToX()">Share on X</button>
     </div>
   </div>
+</footer>
+<div style="text-align:center;padding:16px 20px 32px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.04em;max-width:1320px;margin:0 auto;">
+  Built with love using <a href="https://claude.ai/code?utm_source=modelmadness&utm_medium=referral&utm_campaign=footer" style="color:var(--claude);text-decoration:none;" target="_blank" rel="noopener">Claude Code</a>
 </div>
 
 <div class="toast" id="toast"></div>
