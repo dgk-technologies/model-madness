@@ -355,6 +355,17 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 
 <div class="toast" id="toast"></div>
 
+<!-- Optional Supabase config (copy config.example.js to config.js) -->
+<script src="config.js" onerror="window.SUPABASE_CONFIG=null"></script>
+<!-- Supabase JS client (loaded only if config exists) -->
+<script>
+if (window.SUPABASE_CONFIG) {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  document.head.appendChild(s);
+}
+</script>
+
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
 const PICKS = {
@@ -409,7 +420,54 @@ const S = {
   rounds: { r64:0, r32:0, s16:0, e8:0, ff:0, ncg:0 }, // games completed per round
   roundsTotal: { r64:32, r32:16, s16:8, e8:4, ff:2, ncg:1 },
   champShown: false, // track if we've shown confetti
+  source: 'espn', // 'supabase' or 'espn'
 };
+
+// ─── SUPABASE (optional persistence) ───────────────────────────────────────
+let supabase = null;
+
+function initSupabase() {
+  if (window.SUPABASE_CONFIG && window.supabase) {
+    try {
+      supabase = window.supabase.createClient(
+        window.SUPABASE_CONFIG.url,
+        window.SUPABASE_CONFIG.anonKey
+      );
+      console.log('Supabase initialized');
+      return true;
+    } catch(e) {
+      console.warn('Supabase init failed:', e);
+    }
+  }
+  return false;
+}
+
+async function fetchFromSupabase() {
+  if (!supabase) return false;
+  try {
+    const { data, error } = await supabase
+      .schema('model_madness')
+      .from('tournament_state')
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    if (!data) return false;
+
+    // Apply Supabase state
+    if (data.final_four?.length) S.ff = data.final_four.map(N).filter(Boolean);
+    if (data.semis?.length) S.semis = data.semis.map(N).filter(Boolean);
+    if (data.champion) S.champ = N(data.champion);
+    if (data.rounds) S.rounds = data.rounds;
+    S.source = 'supabase';
+    S.lastFetch = new Date(data.updated_at);
+    console.log('Loaded state from Supabase');
+    return true;
+  } catch(e) {
+    console.warn('Supabase fetch failed:', e);
+    return false;
+  }
+}
 
 // Name normalization
 const NORM = {
@@ -510,17 +568,28 @@ const ESPN_WPW_URL='https://gambit-api.fantasy.espn.com/apis/v1/challenges/tourn
 
 async function doFetch() {
   setStatus('loading');
-  try {
-    const r = await fetch(ESPN_URL, {cache:'no-store'});
-    if (!r.ok) throw new Error(r.status);
-    parseESPN(await r.json());
-    S.status='live'; S.lastFetch=new Date();
-    setStatus('live');
-  } catch(e) {
-    console.warn('ESPN:', e);
-    S.status='error';
-    setStatus('error');
+
+  // Try Supabase first (if configured)
+  const gotSupabase = await fetchFromSupabase();
+
+  // If Supabase didn't have data or isn't configured, try ESPN
+  if (!gotSupabase) {
+    try {
+      const r = await fetch(ESPN_URL, {cache:'no-store'});
+      if (!r.ok) throw new Error(r.status);
+      parseESPN(await r.json());
+      S.source = 'espn';
+      S.status='live'; S.lastFetch=new Date();
+    } catch(e) {
+      console.warn('ESPN:', e);
+      S.status='error';
+      setStatus('error');
+    }
+  } else {
+    S.status = 'live';
   }
+
+  setStatus(S.status);
 
   // Try to fetch live public pick percentages
   fetchLivePickPct();
@@ -810,7 +879,10 @@ function setStatus(s) {
   const dot=document.getElementById('live-dot'), lbl=document.getElementById('live-label');
   dot.className='live-dot';
   if(s==='loading'){ dot.classList.add('loading'); lbl.textContent='Fetching…'; }
-  else if(s==='live'){ lbl.textContent='ESPN · '+new Date().toLocaleTimeString(); }
+  else if(s==='live'){
+    const src = S.source === 'supabase' ? 'Synced' : 'ESPN';
+    lbl.textContent=src+' · '+new Date().toLocaleTimeString();
+  }
   else if(s==='error'){ dot.classList.add('error'); lbl.textContent='API unavailable'; }
   else if(s==='manual'){ dot.classList.add('loading'); lbl.textContent='Manual override'; }
 }
@@ -872,8 +944,20 @@ function toast(msg) {
 
 // ─── BOOT ──────────────────────────────────────────────────────────────────
 render();
-doFetch();
-setInterval(doFetch, 60_000);
+
+// Wait for Supabase client to load (if config exists), then fetch
+function boot() {
+  initSupabase();
+  doFetch();
+  setInterval(doFetch, 60_000);
+}
+
+// If Supabase config exists, wait a moment for the client script to load
+if (window.SUPABASE_CONFIG) {
+  setTimeout(boot, 200);
+} else {
+  boot();
+}
 </script>
 </body>
 </html>
