@@ -220,34 +220,42 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .bracket-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; overflow-x:auto; }
 
-/* Bracket Grid Layout */
-.bracket-grid { display:grid; grid-template-columns:1fr 200px 1fr; grid-template-rows:auto auto; gap:16px 8px; min-width:1100px; }
-.bracket-region { min-height:300px; position:relative; }
-.bracket-region::before { content:attr(data-region); position:absolute; top:0; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.06em; color:var(--accent); }
-.bracket-left::before { left:0; }
-.bracket-right::before { right:0; }
-.bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; grid-row:span 2; padding:20px 0; }
-.bracket-ff-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
-.bracket-ff-team { font-size:13px; font-weight:500; padding:10px 20px; background:var(--s2); border:1px solid var(--border); border-radius:6px; text-align:center; min-width:120px; }
-.bracket-ff-team.correct { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); }
-.bracket-ff-team.incorrect { background:rgba(248,113,113,.1); border-color:rgba(248,113,113,.3); color:var(--bad); }
-.bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.04em; padding:14px 24px; background:rgba(251,191,36,.1); border:2px solid rgba(251,191,36,.4); border-radius:8px; margin:8px 0; }
-.bracket-champ.correct { background:rgba(74,222,128,.15); border-color:var(--ok); color:var(--ok); }
-.bracket-champ.incorrect { background:rgba(248,113,113,.12); border-color:var(--bad); color:var(--bad); }
-.bracket-spacer { grid-column:2; }
-/* Bracketry theme overrides */
-.bracket-region svg { width:100%; height:100%; }
-.bracket-region .round-title { font-family:'DM Mono',monospace !important; font-size:9px !important; fill:var(--dim) !important; text-transform:uppercase; letter-spacing:.08em; }
-.bracket-region .match-wrapper { cursor:default; }
-.bracket-region .side-wrapper { background:var(--s2); border:1px solid var(--border); border-radius:4px; }
-.bracket-region .side-wrapper.highlighted { background:var(--s3); }
-.bracket-region .contestant-title { font-family:'DM Sans',sans-serif !important; font-size:11px !important; fill:var(--text) !important; }
-.bracket-region .connector-line { stroke:var(--border2) !important; }
-.bracket-region .side-wrapper[data-winner="true"] { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.3); }
-.bracket-region .side-wrapper[data-winner="true"] .contestant-title { fill:var(--ok) !important; }
-.bracket-region .side-wrapper[data-loser="true"] { opacity:0.5; }
-@media(max-width:1100px) { .bracket-grid { min-width:900px; grid-template-columns:1fr 160px 1fr; } }
-@media(max-width:900px) { .bracket-grid { grid-template-columns:1fr; grid-template-rows:auto; min-width:auto; } .bracket-ff { grid-row:auto; } }
+/* Pure CSS Bracket with Lines */
+.bracket-container { display:flex; flex-direction:column; gap:24px; min-width:1000px; }
+.bracket-row { display:flex; align-items:stretch; justify-content:center; gap:0; }
+.bracket-region { display:flex; align-items:center; }
+.bracket-region.left { flex-direction:row; }
+.bracket-region.right { flex-direction:row-reverse; }
+.bracket-region-label { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.08em; color:var(--accent); writing-mode:vertical-rl; padding:0 6px; }
+.bracket-region.left .bracket-region-label { transform:rotate(180deg); }
+.bracket-round { display:flex; flex-direction:column; justify-content:space-around; }
+.bracket-game { display:flex; flex-direction:column; position:relative; }
+.bracket-team { font-size:10px; padding:3px 8px; background:var(--s2); border:1px solid var(--border); white-space:nowrap; min-width:85px; line-height:1.3; }
+.bracket-region.left .bracket-team { border-radius:3px 0 0 3px; border-right:none; }
+.bracket-region.right .bracket-team { border-radius:0 3px 3px 0; border-left:none; text-align:right; }
+.bracket-team.correct { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.35); color:var(--ok); }
+.bracket-team.incorrect { background:rgba(248,113,113,.08); border-color:rgba(248,113,113,.25); color:var(--bad); text-decoration:line-through; text-decoration-color:rgba(248,113,113,.4); }
+.bracket-team.winner { font-weight:600; }
+/* Bracket connector lines */
+.bracket-line { width:16px; position:relative; }
+.bracket-line::before, .bracket-line::after { content:''; position:absolute; background:var(--border2); }
+.bracket-region.left .bracket-line::before { right:0; top:0; bottom:50%; width:8px; border:1px solid var(--border2); border-left:none; border-bottom:none; background:transparent; }
+.bracket-region.left .bracket-line::after { right:0; top:50%; bottom:0; width:8px; border:1px solid var(--border2); border-left:none; border-top:none; background:transparent; }
+.bracket-region.right .bracket-line::before { left:0; top:0; bottom:50%; width:8px; border:1px solid var(--border2); border-right:none; border-bottom:none; background:transparent; }
+.bracket-region.right .bracket-line::after { left:0; top:50%; bottom:0; width:8px; border:1px solid var(--border2); border-right:none; border-top:none; background:transparent; }
+.bracket-line-h { width:12px; height:1px; background:var(--border2); align-self:center; }
+/* Final Four center section */
+.bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:0 20px; min-width:140px; }
+.bracket-ff-label { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); }
+.bracket-ff-team { font-size:12px; font-weight:500; padding:8px 16px; background:var(--s2); border:1px solid var(--border); border-radius:5px; text-align:center; min-width:100px; }
+.bracket-ff-team.correct { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.35); color:var(--ok); }
+.bracket-ff-team.incorrect { background:rgba(248,113,113,.08); border-color:rgba(248,113,113,.25); color:var(--bad); }
+.bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; padding:10px 18px; background:rgba(251,191,36,.08); border:2px solid rgba(251,191,36,.35); border-radius:6px; margin:6px 0; }
+.bracket-champ.correct { background:rgba(74,222,128,.12); border-color:var(--ok); color:var(--ok); }
+.bracket-champ.incorrect { background:rgba(248,113,113,.1); border-color:var(--bad); color:var(--bad); }
+.bracket-spacer { width:140px; min-width:140px; }
+@media(max-width:1100px) { .bracket-container { min-width:850px; } .bracket-team { min-width:70px; font-size:9px; } }
+@media(max-width:900px) { .bracket-container { min-width:auto; flex-direction:column; } .bracket-row { flex-direction:column; align-items:center; } .bracket-region { flex-direction:column !important; } .bracket-region-label { writing-mode:horizontal-tb; transform:none !important; } }
 
 /* RESULTS VIEW */
 .results-view { display:grid; grid-template-columns:280px 1fr; gap:20px; }
@@ -455,14 +463,7 @@ footer { border-top:1px solid var(--border); }
   <div class="bracket-section">
     <div class="bracket-tabs" id="bracket-tabs"></div>
     <div class="bracket-wrap">
-      <div class="bracket-grid" id="bracket-viz">
-        <div class="bracket-region bracket-left" id="bracket-east"></div>
-        <div class="bracket-ff" id="bracket-ff"></div>
-        <div class="bracket-region bracket-right" id="bracket-west"></div>
-        <div class="bracket-region bracket-left" id="bracket-south"></div>
-        <div class="bracket-spacer"></div>
-        <div class="bracket-region bracket-right" id="bracket-midwest"></div>
-      </div>
+      <div id="bracket-viz"></div>
       <div class="results-view" id="results-viz" style="display:none;"></div>
     </div>
   </div>
@@ -544,8 +545,6 @@ footer { border-top:1px solid var(--border); }
 
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<!-- Bracketry - tournament bracket visualization -->
-<script src="https://cdn.jsdelivr.net/npm/bracketry@1.1.3/dist/bracketry.min.js"></script>
 
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
@@ -1464,135 +1463,75 @@ function selectBracket(id) {
 function renderBracket(aiId, sc) {
   const p = PICKS[aiId];
   const d = sc[aiId].d;
-
-  // Get team status
-  const getStatus = (round, region, team, idx) => {
-    if (round === 'champ') return d.champ || 'pending';
-    if (round === 'ff') return d.ff?.[idx] || 'pending';
-    if (round === 'e8') return d.e8?.[region] || 'pending';
-    const picks = d[round]?.[region] || [];
-    return picks[idx] || 'pending';
-  };
   const cls = (st) => st === 'correct' ? 'correct' : st === 'incorrect' ? 'incorrect' : '';
 
-  // Build Bracketry data for a region
-  const buildRegionData = (region, isRight) => {
+  // Build a region bracket (left flows →, right flows ←)
+  const buildRegion = (region, label, isRight) => {
     const r64 = p.r64[region] || [];
     const r32 = p.r32[region] || [];
     const s16 = p.s16[region] || [];
     const e8 = p.e8[region];
-
-    // Create matches: pair r64 winners → r32 winners → s16 winners → e8 winner
-    const matches = [];
-    let matchOrder = 0;
-
-    // Round 0: R64 winners paired (8 teams → 4 matches)
-    for (let i = 0; i < 8; i += 2) {
-      matches.push({
-        roundIndex: 0, order: matchOrder++,
-        sides: [
-          { title: r64[i], isWinner: r32.includes(r64[i]) },
-          { title: r64[i+1], isWinner: r32.includes(r64[i+1]) }
-        ]
-      });
-    }
-
-    // Round 1: R32 winners paired (4 teams → 2 matches)
-    matchOrder = 0;
-    for (let i = 0; i < 4; i += 2) {
-      matches.push({
-        roundIndex: 1, order: matchOrder++,
-        sides: [
-          { title: r32[i], isWinner: s16.includes(r32[i]) },
-          { title: r32[i+1], isWinner: s16.includes(r32[i+1]) }
-        ]
-      });
-    }
-
-    // Round 2: S16 winners paired (2 teams → 1 match)
-    matches.push({
-      roundIndex: 2, order: 0,
-      sides: [
-        { title: s16[0], isWinner: s16[0] === e8 },
-        { title: s16[1], isWinner: s16[1] === e8 }
-      ]
-    });
-
-    // Round 3: E8 winner
-    matches.push({
-      roundIndex: 3, order: 0,
-      sides: [{ title: e8, isWinner: true }]
-    });
-
-    return {
-      rounds: [{ name: 'R64' }, { name: 'R32' }, { name: 'S16' }, { name: 'E8' }],
-      matches
+    const getS = (rnd, t, i) => {
+      if (rnd === 'e8') return d.e8?.[region] || 'pending';
+      return (d[rnd]?.[region] || [])[i] || 'pending';
     };
+
+    // Build round columns
+    const r64Col = r64.map((t,i) => `<div class="bracket-game"><div class="bracket-team ${cls(getS('r64',t,i))}">${t}</div></div>`).join('');
+    const r32Col = r32.map((t,i) => `<div class="bracket-game" style="height:50px"><div class="bracket-team ${cls(getS('r32',t,i))}">${t}</div></div>`).join('');
+    const s16Col = s16.map((t,i) => `<div class="bracket-game" style="height:100px"><div class="bracket-team ${cls(getS('s16',t,i))}">${t}</div></div>`).join('');
+    const e8Col = `<div class="bracket-game" style="height:200px"><div class="bracket-team winner ${cls(getS('e8',e8,0))}">${e8}</div></div>`;
+
+    if (isRight) {
+      return `<div class="bracket-region right">
+        <div class="bracket-round" style="justify-content:center">${e8Col}</div>
+        <div class="bracket-line-h"></div>
+        <div class="bracket-round">${s16Col}</div>
+        <div class="bracket-line-h"></div>
+        <div class="bracket-round">${r32Col}</div>
+        <div class="bracket-line-h"></div>
+        <div class="bracket-round">${r64Col}</div>
+        <div class="bracket-region-label">${label}</div>
+      </div>`;
+    }
+    return `<div class="bracket-region left">
+      <div class="bracket-region-label">${label}</div>
+      <div class="bracket-round">${r64Col}</div>
+      <div class="bracket-line-h"></div>
+      <div class="bracket-round">${r32Col}</div>
+      <div class="bracket-line-h"></div>
+      <div class="bracket-round">${s16Col}</div>
+      <div class="bracket-line-h"></div>
+      <div class="bracket-round" style="justify-content:center">${e8Col}</div>
+    </div>`;
   };
 
-  // Clear existing brackets
-  ['east', 'west', 'south', 'midwest'].forEach(r => {
-    const el = document.getElementById(`bracket-${r}`);
-    if (el) el.innerHTML = '';
-  });
+  const ff0St = cls(d.ff?.[0] || 'pending');
+  const ff1St = cls(d.ff?.[1] || 'pending');
+  const champSt = cls(d.champ || 'pending');
+  const champClr = champSt === 'correct' ? 'var(--ok)' : champSt === 'incorrect' ? 'var(--bad)' : p.color;
 
-  // Create Bracketry instances for each region
-  const regions = [
-    { id: 'east', region: 'east', label: 'EAST', isRight: false },
-    { id: 'west', region: 'west', label: 'WEST', isRight: true },
-    { id: 'south', region: 'south', label: 'SOUTH', isRight: false },
-    { id: 'midwest', region: 'midwest', label: 'MIDWEST', isRight: true }
-  ];
+  const html = `<div class="bracket-container">
+    <div class="bracket-row">
+      ${buildRegion('east', 'EAST', false)}
+      <div class="bracket-ff">
+        <div class="bracket-ff-label">Final Four</div>
+        <div class="bracket-ff-team ${ff0St}">${p.ff[0]}</div>
+        <div class="bracket-ff-label">Champion</div>
+        <div class="bracket-champ ${champSt}" style="color:${champClr}">${p.champ}</div>
+        <div class="bracket-ff-label">Final Four</div>
+        <div class="bracket-ff-team ${ff1St}">${p.ff[1]}</div>
+      </div>
+      ${buildRegion('west', 'WEST', true)}
+    </div>
+    <div class="bracket-row">
+      ${buildRegion('south', 'SOUTH', false)}
+      <div class="bracket-spacer"></div>
+      ${buildRegion('midwest', 'MIDWEST', true)}
+    </div>
+  </div>`;
 
-  regions.forEach(({ id, region, label, isRight }) => {
-    const container = document.getElementById(`bracket-${id}`);
-    if (!container) return;
-    container.setAttribute('data-region', label);
-    container.style.height = '320px';
-
-    try {
-      const data = buildRegionData(region, isRight);
-      window.Bracketry?.createBracket(data, container, {
-        navButtonsPosition: 'none',
-        verticalScrollMode: 'none',
-        rootBorderColor: 'transparent',
-        rootBgColor: 'transparent',
-        connectionLinesColor: '#374151',
-        connectionLinesWidth: 1,
-        matchAxisMargin: 12,
-        matchHorMargin: 24,
-        roundTitlesVerticalPadding: 8,
-        roundTitlesFontSize: 10,
-        roundTitlesFontFamily: 'DM Mono, monospace',
-        roundTitlesColor: '#6b7280',
-        matchFontSize: 11,
-        matchTextColor: '#e5e7eb',
-        matchBgColor: '#1f2937',
-        matchHoverBgColor: '#374151',
-        highlightedPlayerTitleColor: '#4ade80',
-        disableSeparateScores: true,
-        flipBracket: isRight
-      });
-    } catch (e) {
-      console.warn('Bracketry error:', e);
-      container.innerHTML = `<div style="color:var(--dim);padding:20px;">Bracket visualization unavailable</div>`;
-    }
-  });
-
-  // Render Final Four section
-  const ff0Status = cls(getStatus('ff', null, p.ff[0], 0));
-  const ff1Status = cls(getStatus('ff', null, p.ff[1], 1));
-  const champStatus = cls(getStatus('champ', null, p.champ, 0));
-  const champColor = champStatus === 'correct' ? 'var(--ok)' : champStatus === 'incorrect' ? 'var(--bad)' : p.color;
-
-  document.getElementById('bracket-ff').innerHTML = `
-    <div class="bracket-ff-label">East/West</div>
-    <div class="bracket-ff-team ${ff0Status}">${p.ff[0]}</div>
-    <div class="bracket-ff-label">Champion</div>
-    <div class="bracket-champ ${champStatus}" style="color:${champColor}">${p.champ}</div>
-    <div class="bracket-ff-label">South/Midwest</div>
-    <div class="bracket-ff-team ${ff1Status}">${p.ff[1]}</div>
-  `;
+  document.getElementById('bracket-viz').innerHTML = html;
 }
 
 function renderResults() {
@@ -1707,7 +1646,7 @@ function renderResults() {
 
 // Show/hide bracket vs results view
 function showBracketView() {
-  document.getElementById('bracket-viz').style.display = 'grid';
+  document.getElementById('bracket-viz').style.display = 'block';
   document.getElementById('results-viz').style.display = 'none';
 }
 function showResultsView() {
