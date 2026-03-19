@@ -355,16 +355,10 @@ footer { border-top:1px solid var(--border); padding:24px; display:flex; align-i
 
 <div class="toast" id="toast"></div>
 
-<!-- Optional Supabase config (copy config.example.js to config.js) -->
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Optional local config (for dev) or fetched from /api/config (for Vercel) -->
 <script src="config.js" onerror="window.SUPABASE_CONFIG=null"></script>
-<!-- Supabase JS client (loaded only if config exists) -->
-<script>
-if (window.SUPABASE_CONFIG) {
-  const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-  document.head.appendChild(s);
-}
-</script>
 
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
@@ -426,13 +420,24 @@ const S = {
 // ─── SUPABASE (optional persistence) ───────────────────────────────────────
 let supabase = null;
 
-function initSupabase() {
-  if (window.SUPABASE_CONFIG && window.supabase) {
+async function initSupabase() {
+  // Try local config first (for dev), then API (for Vercel)
+  let config = window.SUPABASE_CONFIG;
+
+  if (!config) {
     try {
-      supabase = window.supabase.createClient(
-        window.SUPABASE_CONFIG.url,
-        window.SUPABASE_CONFIG.anonKey
-      );
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        config = await res.json();
+      }
+    } catch(e) {
+      // API not available, that's fine
+    }
+  }
+
+  if (config?.url && config?.anonKey && window.supabase) {
+    try {
+      supabase = window.supabase.createClient(config.url, config.anonKey);
       console.log('Supabase initialized');
       return true;
     } catch(e) {
@@ -945,19 +950,14 @@ function toast(msg) {
 // ─── BOOT ──────────────────────────────────────────────────────────────────
 render();
 
-// Wait for Supabase client to load (if config exists), then fetch
-function boot() {
-  initSupabase();
+// Initialize Supabase (if configured) then start fetching
+async function boot() {
+  await initSupabase();
   doFetch();
   setInterval(doFetch, 60_000);
 }
 
-// If Supabase config exists, wait a moment for the client script to load
-if (window.SUPABASE_CONFIG) {
-  setTimeout(boot, 200);
-} else {
-  boot();
-}
+boot();
 </script>
 </body>
 </html>

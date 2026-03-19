@@ -79,33 +79,41 @@ In your Supabase dashboard, go to **SQL Editor** and run the contents of `supaba
 - `tournament_history` table (for archiving past years)
 - Row Level Security policies (anyone can read, only service role can write)
 
-### 3. Create config.js
+### 3. Set Vercel Environment Variables
 
-Copy `config.example.js` to `config.js` and fill in your Supabase credentials:
+In the Vercel dashboard for your project, go to **Settings > Environment Variables** and add:
 
-```javascript
-window.SUPABASE_CONFIG = {
-  url: 'https://your-project-id.supabase.co',
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-};
-```
+| Variable | Value |
+|----------|-------|
+| `SUPABASE_URL` | `https://your-project-id.supabase.co` |
+| `SUPABASE_ANON_KEY` | Your anon/public key from Supabase |
 
 Get these from your Supabase dashboard: **Settings > API**
 
 > **Note:** The anon key is safe to use client-side — it's designed for public access and protected by Row Level Security.
 
-### 4. Deploy
+### 4. Redeploy
 
-For Vercel, you can either:
-- Include `config.js` in your deployment (it's gitignored by default)
-- Or inject the config via Vercel's build settings
+After adding the env vars, trigger a redeploy. The `/api/config` endpoint will now return the Supabase config.
+
+### For Local Development
+
+Copy `config.example.js` to `config.js`:
+
+```javascript
+window.SUPABASE_CONFIG = {
+  url: 'https://your-project-id.supabase.co',
+  anonKey: 'your-anon-key-here',
+};
+```
 
 ### How it works
 
 When Supabase is configured:
-1. Site tries to load state from Supabase first
-2. Falls back to ESPN if Supabase fails
-3. Status indicator shows "Synced" instead of "ESPN"
+1. Site fetches config from `/api/config` (Vercel) or `config.js` (local)
+2. Tries to load state from Supabase first
+3. Falls back to ESPN if Supabase fails
+4. Status indicator shows "Synced" instead of "ESPN"
 
 To update the Supabase state, you can:
 - Use the SQL Editor in Supabase dashboard
