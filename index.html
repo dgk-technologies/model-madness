@@ -340,9 +340,9 @@ footer { border-top:1px solid var(--border); }
   <div class="sh"><h2>AI vs The Public</h2><p>How do the AI picks compare to ESPN bracket challenge pick percentages?</p></div>
   <div class="comparison-grid">
     <div class="comp-card">
-      <div class="comp-title">Champion pick — AI vs public % <span id="live-pct-badge" style="font-size:9px;color:var(--ok);margin-left:6px;display:none;">LIVE</span></div>
+      <div class="comp-title">Champion pick — AI vs public %</div>
       <div id="consensus-bars"></div>
-      <div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;" id="pct-source">Source: ESPN Bracket Challenge public pick data</div>
+      <div style="margin-top:14px;font-size:11px;color:var(--dim);font-family:'DM Mono',monospace;">Source: ESPN Bracket Challenge</div>
     </div>
     <div class="comp-card">
       <div class="comp-title">Pick agreement matrix</div>
@@ -370,8 +370,6 @@ footer { border-top:1px solid var(--border); }
 
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<!-- Optional local config (for dev) or fetched from /api/config (for Vercel) -->
-<script src="config.js" onerror="window.SUPABASE_CONFIG=null"></script>
 
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
@@ -410,12 +408,10 @@ const ORDER = ['claude','chatgpt','gemini','grok'];
 const MAX   = 120; // 4×10 + 2×20 + 1×40
 
 // ESPN Bracket Challenge approximate public pick percentages for champion
-// Will be updated live if ESPN API is available
-let PUB_PCT = {
+const PUB_PCT = {
   Duke:8, Arizona:18, Michigan:14, Florida:12,
   UConn:9, Purdue:4, Houston:6, Other:5,
 };
-let livePctLoaded = false;
 
 // ─── LIVE STATE ────────────────────────────────────────────────────────────
 const S = {
@@ -434,27 +430,23 @@ const S = {
 let sbClient = null;
 
 async function initSupabase() {
-  // Try local config first (for dev), then API (for Vercel)
-  let config = window.SUPABASE_CONFIG;
-
-  if (!config) {
-    try {
-      const res = await fetch('/api/config');
-      if (res.ok) {
-        config = await res.json();
-      }
-    } catch(e) {
-      // API not available, that's fine
+  // Fetch config from API
+  let config = null;
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      config = await res.json();
     }
+  } catch(e) {
+    // API not available
   }
 
   if (config?.url && config?.anonKey && window.supabase) {
     try {
       sbClient = window.supabase.createClient(config.url, config.anonKey);
-      console.log('Supabase initialized');
       return true;
     } catch(e) {
-      console.warn('Supabase init failed:', e);
+      // Supabase init failed
     }
   }
   return false;
@@ -587,8 +579,6 @@ function allScores() {
 
 // ─── ESPN FETCH ────────────────────────────────────────────────────────────
 const ESPN_URL='https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
-// ESPN "Who Picked Whom" endpoint (public bracket challenge data)
-const ESPN_WPW_URL='https://gambit-api.fantasy.espn.com/apis/v1/challenges/tournaments/toc-2026-mens-bracket/whoPickedWhom';
 
 async function doFetch() {
   setStatus('loading');
@@ -614,43 +604,12 @@ async function doFetch() {
   }
 
   setStatus(S.status);
-
-  // Try to fetch live public pick percentages
-  fetchLivePickPct();
-
   render();
 
   // Check for champion confetti
   if (S.champ && !S.champShown) {
     S.champShown = true;
     setTimeout(launchConfetti, 500);
-  }
-}
-
-async function fetchLivePickPct() {
-  try {
-    const r = await fetch(ESPN_WPW_URL, {cache:'no-store'});
-    if (!r.ok) return;
-    const data = await r.json();
-
-    // ESPN returns pick percentages by team for championship
-    if (data.championPicks) {
-      const newPct = {};
-      for (const [teamId, info] of Object.entries(data.championPicks)) {
-        const teamName = N(info.teamName || info.name || '');
-        if (teamName && info.percentage) {
-          newPct[teamName] = Math.round(info.percentage * 100);
-        }
-      }
-      if (Object.keys(newPct).length > 0) {
-        PUB_PCT = {...PUB_PCT, ...newPct};
-        livePctLoaded = true;
-        document.getElementById('live-pct-badge').style.display = 'inline';
-        document.getElementById('pct-source').textContent = 'Source: ESPN Bracket Challenge (live)';
-      }
-    }
-  } catch(e) {
-    // ESPN endpoint blocks CORS - this is expected, using hardcoded fallback
   }
 }
 
@@ -825,9 +784,8 @@ function renderConsensus() {
     const color=pickers.length?PICKS[pickers[0]].color:'var(--muted)';
     const dots=pickers.map(id=>`<div class="consensus-ai-dot" style="background:${PICKS[id].color}22;color:${PICKS[id].color}">${PICKS[id].initial}</div>`).join('');
     const chk=S.champ?(S.champ.toLowerCase()===team.toLowerCase()?' ✓':''):'';
-    const liveClass = livePctLoaded ? ' live' : '';
     return `<div class="consensus-item">
-      <div class="consensus-head"><span class="consensus-team">${team}${chk}</span><span class="consensus-pct${liveClass}">${pct}% public</span></div>
+      <div class="consensus-head"><span class="consensus-team">${team}${chk}</span><span class="consensus-pct">${pct}% public</span></div>
       <div class="consensus-bar-track"><div class="consensus-bar-fill" style="background:${color}" data-w="${pct}"></div></div>
       <div class="consensus-ais">${dots}</div>
     </div>`;
