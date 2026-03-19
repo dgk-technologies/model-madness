@@ -451,7 +451,8 @@ async function fetchFromSupabase() {
   if (!sbClient) return false;
   try {
     const { data, error } = await sbClient
-      .from('mm_tournament_state')
+      .schema('model_madness')
+      .from('tournament_state')
       .select('*')
       .single();
 

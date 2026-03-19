@@ -74,10 +74,12 @@ If you don't have a Supabase project, create one at [supabase.com](https://supab
 
 ### 2. Run the schema
 
-In your Supabase dashboard, go to **SQL Editor** and run the contents of `supabase/schema.sql`. This creates:
-- `mm_tournament_state` table (single row with current results)
-- `mm_tournament_history` table (for archiving past years)
+In your Supabase dashboard, go to **SQL Editor** and run the contents of `supabase/schema.sql`. This creates a `model_madness` schema with:
+- `tournament_state` table (single row with current results)
+- `tournament_history` table (for archiving past years)
 - Row Level Security policies (anyone can read, only service role can write)
+
+**Important:** After running the schema, go to **Settings > API** and add `model_madness` to the **Exposed schemas** list.
 
 ### 3. Set Vercel Environment Variables
 
