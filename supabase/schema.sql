@@ -1,18 +1,12 @@
 -- Model Madness 2026 Database Schema
 -- Run this in the Supabase SQL Editor (Dashboard > SQL Editor)
--- Uses a separate schema to keep it segmented from other projects
-
--- ============================================
--- CREATE SCHEMA
--- ============================================
-
-CREATE SCHEMA IF NOT EXISTS model_madness;
+-- Uses public schema with mm_ prefix to keep tables organized
 
 -- ============================================
 -- TOURNAMENT STATE (single row, stores live results)
 -- ============================================
 
-CREATE TABLE model_madness.tournament_state (
+CREATE TABLE IF NOT EXISTS mm_tournament_state (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1), -- Ensures single row
   final_four TEXT[] DEFAULT '{}',  -- Array of team names
   semis TEXT[] DEFAULT '{}',       -- Teams in championship game
@@ -23,14 +17,14 @@ CREATE TABLE model_madness.tournament_state (
 );
 
 -- Insert initial row
-INSERT INTO model_madness.tournament_state (id) VALUES (1)
+INSERT INTO mm_tournament_state (id) VALUES (1)
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
 -- TOURNAMENT HISTORY (for future years)
 -- ============================================
 
-CREATE TABLE model_madness.tournament_history (
+CREATE TABLE IF NOT EXISTS mm_tournament_history (
   year INTEGER PRIMARY KEY,
   final_four TEXT[],
   semis TEXT[],
@@ -45,26 +39,30 @@ CREATE TABLE model_madness.tournament_history (
 -- ROW LEVEL SECURITY (RLS)
 -- ============================================
 
-ALTER TABLE model_madness.tournament_state ENABLE ROW LEVEL SECURITY;
-ALTER TABLE model_madness.tournament_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mm_tournament_state ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mm_tournament_history ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can read current state (for live updates)
-CREATE POLICY "Anyone can read tournament state" ON model_madness.tournament_state
+DROP POLICY IF EXISTS "Anyone can read tournament state" ON mm_tournament_state;
+CREATE POLICY "Anyone can read tournament state" ON mm_tournament_state
   FOR SELECT TO anon, authenticated
   USING (true);
 
 -- Only service role can update (via API or admin)
-CREATE POLICY "Service role can update state" ON model_madness.tournament_state
+DROP POLICY IF EXISTS "Service role can update state" ON mm_tournament_state;
+CREATE POLICY "Service role can update state" ON mm_tournament_state
   FOR UPDATE TO service_role
   USING (true);
 
 -- Anyone can read history
-CREATE POLICY "Anyone can read tournament history" ON model_madness.tournament_history
+DROP POLICY IF EXISTS "Anyone can read tournament history" ON mm_tournament_history;
+CREATE POLICY "Anyone can read tournament history" ON mm_tournament_history
   FOR SELECT TO anon, authenticated
   USING (true);
 
 -- Only service role can manage history
-CREATE POLICY "Service role can manage history" ON model_madness.tournament_history
+DROP POLICY IF EXISTS "Service role can manage history" ON mm_tournament_history;
+CREATE POLICY "Service role can manage history" ON mm_tournament_history
   FOR ALL TO service_role
   USING (true);
 
@@ -73,7 +71,7 @@ CREATE POLICY "Service role can manage history" ON model_madness.tournament_hist
 -- ============================================
 
 -- Auto-update updated_at timestamp
-CREATE OR REPLACE FUNCTION model_madness.update_updated_at()
+CREATE OR REPLACE FUNCTION mm_update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -81,14 +79,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tournament_state_updated_at
-  BEFORE UPDATE ON model_madness.tournament_state
-  FOR EACH ROW EXECUTE FUNCTION model_madness.update_updated_at();
-
--- ============================================
--- GRANT PERMISSIONS
--- ============================================
-
--- Allow anon and authenticated to read from the schema
-GRANT USAGE ON SCHEMA model_madness TO anon, authenticated;
-GRANT SELECT ON ALL TABLES IN SCHEMA model_madness TO anon, authenticated;
+DROP TRIGGER IF EXISTS mm_tournament_state_updated_at ON mm_tournament_state;
+CREATE TRIGGER mm_tournament_state_updated_at
+  BEFORE UPDATE ON mm_tournament_state
+  FOR EACH ROW EXECUTE FUNCTION mm_update_updated_at();
