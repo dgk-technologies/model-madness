@@ -226,8 +226,8 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-region-wrap { display:flex; flex-direction:column; }
 .bracket-region-header { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.06em; color:var(--accent); padding:0 0 6px 8px; border-bottom:2px solid var(--accent); margin-bottom:4px; }
 .bracket-region-header.right { text-align:right; padding:0 8px 6px 0; }
-/* 7-column grid: 4 matchup cols + 3 connector cols */
-.bracket-grid { display:grid; grid-template-columns:minmax(100px,130px) 14px minmax(100px,130px) 14px minmax(100px,130px) 14px minmax(100px,130px); grid-template-rows:repeat(16,24px); gap:0; padding:4px 0; }
+/* 9-column grid: R64 field, conn, R64 picks, conn, R32 picks, conn, S16 picks, conn, E8 winner */
+.bracket-grid { display:grid; grid-template-columns:minmax(90px,115px) 14px minmax(90px,115px) 14px minmax(90px,115px) 14px minmax(90px,115px) 14px minmax(90px,115px); grid-template-rows:repeat(16,24px); gap:0; padding:4px 0; }
 .bracket-grid.rtl { direction:rtl; }
 .bracket-grid.rtl * { direction:ltr; }
 /* Team slot */
@@ -261,7 +261,7 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; padding:10px 18px; background:rgba(251,191,36,.08); border:2px solid rgba(251,191,36,.35); border-radius:6px; margin:6px 0; }
 .bracket-champ.correct { background:rgba(74,222,128,.12); border-color:var(--ok); color:var(--ok); }
 .bracket-champ.incorrect { background:rgba(248,113,113,.1); border-color:var(--bad); color:var(--bad); }
-@media(max-width:1200px) { .bracket-container { min-width:1000px; } .bracket-grid { grid-template-columns:minmax(85px,110px) 12px minmax(85px,110px) 12px minmax(85px,110px) 12px minmax(85px,110px); } }
+@media(max-width:1400px) { .bracket-container { min-width:1200px; } .bracket-grid { grid-template-columns:minmax(75px,100px) 12px minmax(75px,100px) 12px minmax(75px,100px) 12px minmax(75px,100px) 12px minmax(75px,100px); } }
 @media(max-width:1000px) { .bracket-container { min-width:auto; flex-direction:column; } .bracket-row { flex-direction:column; align-items:center; } }
 
 /* RESULTS VIEW */
@@ -554,6 +554,51 @@ footer { border-top:1px solid var(--border); }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
+// ─── OFFICIAL 2026 BRACKET (64 teams) ─────────────────────────────────────
+// R64 matchups by seed: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
+const BRACKET = {
+  east: [
+    ['Duke', 'Siena'],           // 1v16
+    ['Ohio State', 'TCU'],       // 8v9
+    ["St. John's", 'Northern Iowa'], // 5v12
+    ['Kansas', 'Cal Baptist'],   // 4v13
+    ['Louisville', 'South Florida'], // 6v11
+    ['Michigan State', 'North Dakota State'], // 3v14
+    ['UCLA', 'UCF'],             // 7v10
+    ['UConn', 'Furman'],         // 2v15
+  ],
+  west: [
+    ['Arizona', 'LIU'],          // 1v16
+    ['Villanova', 'Utah State'], // 8v9
+    ['Wisconsin', 'High Point'], // 5v12
+    ['Arkansas', "Hawai'i"],     // 4v13
+    ['BYU', 'Texas'],            // 6v11
+    ['Gonzaga', 'Kennesaw State'], // 3v14
+    ['Miami (FL)', 'Missouri'],  // 7v10
+    ['Purdue', 'Queens'],        // 2v15
+  ],
+  midwest: [
+    ['Michigan', 'Howard'],      // 1v16
+    ['Georgia', 'Saint Louis'],  // 8v9
+    ['Texas Tech', 'Akron'],     // 5v12
+    ['Alabama', 'Hofstra'],      // 4v13
+    ['Tennessee', 'Miami (Ohio)'], // 6v11
+    ['Virginia', 'Wright State'], // 3v14
+    ['Kentucky', 'Santa Clara'], // 7v10
+    ['Iowa State', 'Tennessee State'], // 2v15
+  ],
+  south: [
+    ['Florida', 'Prairie View A&M'], // 1v16
+    ['Clemson', 'Iowa'],         // 8v9
+    ['Vanderbilt', 'McNeese'],   // 5v12
+    ['Nebraska', 'Troy'],        // 4v13
+    ['North Carolina', 'VCU'],   // 6v11
+    ['Illinois', 'Penn'],        // 3v14
+    ["Saint Mary's", 'Texas A&M'], // 7v10
+    ['Houston', 'Idaho'],        // 2v15
+  ],
+};
+
 // ─── PICKS (single source of truth) ───────────────────────────────────────
 // Full 63-game bracket picks for each AI model
 // Structure: r64/r32/s16/e8 arrays are ordered by seed matchups within each region
@@ -1472,7 +1517,6 @@ function renderBracket(aiId, sc) {
   const d = sc[aiId].d;
 
   // Check if AI pick matches actual result
-  // Returns: 'correct' (✓), 'incorrect' (✗), or 'pending'
   const getStatus = (round, region, team) => {
     const actual = S.winners[round]?.[region] || [];
     if (!actual.length) return 'pending';
@@ -1488,62 +1532,95 @@ function renderBracket(aiId, sc) {
     return '';
   };
 
-  // Build CSS Grid bracket for a region
+  // Check if team was picked by AI to advance
+  const isPick = (team, picks) => picks.some(p => p.toLowerCase().trim() === team.toLowerCase().trim());
+
+  // Build CSS Grid bracket for a region (full 64-team view)
   const buildRegion = (region, label, isRtl) => {
-    const r64 = p.r64[region] || [];
-    const r32 = p.r32[region] || [];
-    const s16 = p.s16[region] || [];
-    const e8 = p.e8[region];
+    const matchups = BRACKET[region] || [];
+    const r64Picks = p.r64[region] || [];
+    const r32Picks = p.r32[region] || [];
+    const s16Picks = p.s16[region] || [];
+    const e8Pick = p.e8[region];
 
     let cells = '';
     const forkDir = isRtl ? 'rtl' : 'ltr';
 
-    // Column 1: R64 picks
-    r64.forEach((team, i) => {
-      const row = i * 2 + 1;
-      const status = getStatus('r64', region, team);
-      const advances = r32.includes(team);
-      const flowCls = status === 'pending' ? (advances ? ' advances' : ' eliminated') : '';
-      cells += `<div class="bracket-slot" style="grid-column:1;grid-row:${row}/span 2"><div class="bracket-team ${status}${flowCls}">${icon(status)}${team}</div></div>`;
+    // Column 1: R64 all 16 teams (8 matchups × 2 teams)
+    matchups.forEach((matchup, i) => {
+      matchup.forEach((team, j) => {
+        const row = i * 2 + j + 1;
+        const picked = isPick(team, r64Picks);
+        const status = getStatus('r64', region, team);
+        let cls = status;
+        if (status === 'pending') {
+          cls += picked ? ' advances' : ' eliminated';
+        }
+        cells += `<div class="bracket-slot" style="grid-column:1;grid-row:${row}"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
+      });
     });
 
     // Column 2: Connectors R64→R32
-    for (let i = 0; i < 4; i++) {
-      const row = i * 4 + 1;
-      cells += `<div class="bracket-conn" style="grid-column:2;grid-row:${row}/span 4"><div class="bracket-fork ${forkDir}"></div></div>`;
+    for (let i = 0; i < 8; i++) {
+      const row = i * 2 + 1;
+      cells += `<div class="bracket-conn" style="grid-column:2;grid-row:${row}/span 2"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Column 3: R32 picks
-    r32.forEach((team, i) => {
-      const row = i * 4 + 2;
-      const status = getStatus('r32', region, team);
-      const advances = s16.includes(team);
-      const flowCls = status === 'pending' ? (advances ? ' advances' : ' eliminated') : '';
-      cells += `<div class="bracket-slot" style="grid-column:3;grid-row:${row}/span 2"><div class="bracket-team ${status}${flowCls}">${icon(status)}${team}</div></div>`;
+    // Column 3: R64 winners (AI picks) = R32 matchups
+    r64Picks.forEach((team, i) => {
+      const row = i * 2 + 1;
+      const status = getStatus('r64', region, team);
+      const advances = isPick(team, r32Picks);
+      let cls = status;
+      if (status === 'pending') {
+        cls += advances ? ' advances' : ' eliminated';
+      }
+      cells += `<div class="bracket-slot" style="grid-column:3;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
     });
 
     // Column 4: Connectors R32→S16
-    for (let i = 0; i < 2; i++) {
-      const row = i * 8 + 1;
-      cells += `<div class="bracket-conn" style="grid-column:4;grid-row:${row}/span 8"><div class="bracket-fork ${forkDir}"></div></div>`;
+    for (let i = 0; i < 4; i++) {
+      const row = i * 4 + 1;
+      cells += `<div class="bracket-conn" style="grid-column:4;grid-row:${row}/span 4"><div class="bracket-fork ${forkDir}"></div></div>`;
     }
 
-    // Column 5: S16 picks
-    s16.forEach((team, i) => {
-      const row = i * 8 + 4;
-      const status = getStatus('s16', region, team);
-      const advances = team === e8;
-      const flowCls = status === 'pending' ? (advances ? ' advances' : ' eliminated') : '';
-      cells += `<div class="bracket-slot" style="grid-column:5;grid-row:${row}/span 2"><div class="bracket-team ${status}${flowCls}">${icon(status)}${team}</div></div>`;
+    // Column 5: R32 winners (AI picks) = S16 matchups
+    r32Picks.forEach((team, i) => {
+      const row = i * 4 + 2;
+      const status = getStatus('r32', region, team);
+      const advances = isPick(team, s16Picks);
+      let cls = status;
+      if (status === 'pending') {
+        cls += advances ? ' advances' : ' eliminated';
+      }
+      cells += `<div class="bracket-slot" style="grid-column:5;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
     });
 
-    // Column 6: Connector S16→E8
-    cells += `<div class="bracket-conn" style="grid-column:6;grid-row:1/span 16"><div class="bracket-fork ${forkDir}"></div></div>`;
+    // Column 6: Connectors S16→E8
+    for (let i = 0; i < 2; i++) {
+      const row = i * 8 + 1;
+      cells += `<div class="bracket-conn" style="grid-column:6;grid-row:${row}/span 8"><div class="bracket-fork ${forkDir}"></div></div>`;
+    }
 
-    // Column 7: E8 pick (always "advances" - it's the regional winner)
-    const e8Status = getStatus('e8', region, e8);
+    // Column 7: S16 winners (AI picks) = E8 matchup
+    s16Picks.forEach((team, i) => {
+      const row = i * 8 + 4;
+      const status = getStatus('s16', region, team);
+      const advances = team.toLowerCase().trim() === e8Pick?.toLowerCase().trim();
+      let cls = status;
+      if (status === 'pending') {
+        cls += advances ? ' advances' : ' eliminated';
+      }
+      cells += `<div class="bracket-slot" style="grid-column:7;grid-row:${row}/span 2"><div class="bracket-team ${cls}">${icon(status)}${team}</div></div>`;
+    });
+
+    // Column 8: Connector S16→E8 winner
+    cells += `<div class="bracket-conn" style="grid-column:8;grid-row:1/span 16"><div class="bracket-fork ${forkDir}"></div></div>`;
+
+    // Column 9: E8 winner (regional champion - always "advances" to Final Four)
+    const e8Status = getStatus('e8', region, e8Pick);
     const e8Flow = e8Status === 'pending' ? ' advances' : '';
-    cells += `<div class="bracket-slot" style="grid-column:7;grid-row:8/span 2"><div class="bracket-team ${e8Status}${e8Flow}">${icon(e8Status)}${e8}</div></div>`;
+    cells += `<div class="bracket-slot" style="grid-column:9;grid-row:8/span 2"><div class="bracket-team ${e8Status}${e8Flow}">${icon(e8Status)}${e8Pick}</div></div>`;
 
     const rtlCls = isRtl ? ' rtl' : '';
     const headerCls = isRtl ? ' right' : '';
