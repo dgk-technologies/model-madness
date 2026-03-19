@@ -229,15 +229,14 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-region-wrap { display:flex; flex-direction:column; gap:8px; }
 .bracket-region-title { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.08em; color:var(--accent); text-align:center; }
 .bracket-region { min-width:420px; }
-/* jQuery Bracket Dark Theme Override */
-.jQBracket, .jQBracket .bracket { background:transparent !important; }
-.jQBracket .team { background:#1f2937 !important; border:1px solid #374151 !important; color:#e5e7eb !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; }
-.jQBracket .team:hover { background:#374151 !important; }
-.jQBracket .win .team, .jQBracket .team.win { background:#065f46 !important; border-color:#10b981 !important; color:#6ee7b7 !important; font-weight:600 !important; }
-.jQBracket .lose .team, .jQBracket .team.lose { background:#1f2937 !important; color:#6b7280 !important; opacity:0.7; }
-.jQBracket .label { color:#6b7280 !important; font-family:'DM Mono',monospace !important; font-size:8px !important; }
-.jQBracket .connector { border-color:#374151 !important; }
-.jQBracket .score, .jQBracket .bubble { display:none !important; }
+/* jQuery Bracket Dark Theme Override - minimal, let library handle layout */
+.jQBracket .bracket { background:transparent !important; }
+.jQBracket .team { background:#1f2937 !important; border-color:#374151 !important; color:#e5e7eb !important; font-family:'DM Sans',sans-serif !important; font-size:10px !important; }
+.jQBracket .win .team { background:#14532d !important; border-color:#22c55e !important; color:#86efac !important; }
+.jQBracket .lose .team { color:#6b7280 !important; }
+.jQBracket .label { color:#6b7280 !important; }
+.jQBracket .connector { border-color:#4b5563 !important; }
+.jQBracket .score { display:none !important; }
 /* Final Four center section */
 .bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px; min-width:160px; }
 .bracket-ff-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
