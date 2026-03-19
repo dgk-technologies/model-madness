@@ -220,46 +220,34 @@ main { max-width:1320px; margin:0 auto; padding:40px 20px 100px; }
 .bracket-tab-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .bracket-wrap { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:20px; overflow-x:auto; }
 
-/* Traditional Bracket Layout with Lines */
-.trad-bracket { display:flex; align-items:center; justify-content:center; min-width:1200px; gap:0; padding:20px 0; }
-.trad-region { display:flex; align-items:center; }
-.trad-region.left { flex-direction:row; }
-.trad-region.right { flex-direction:row-reverse; }
-.trad-round { display:flex; flex-direction:column; justify-content:space-around; padding:0 2px; }
-.trad-round-label { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); text-align:center; margin-bottom:8px; position:absolute; top:-18px; left:0; right:0; }
-.trad-matchup { position:relative; display:flex; flex-direction:column; margin:4px 0; }
-.trad-team { font-size:10px; padding:4px 8px; background:var(--s2); border:1px solid var(--border); white-space:nowrap; min-width:90px; position:relative; }
-.trad-region.left .trad-team { border-radius:4px 0 0 4px; }
-.trad-region.right .trad-team { border-radius:0 4px 4px 0; text-align:right; }
-.trad-team.correct { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); }
-.trad-team.incorrect { background:rgba(248,113,113,.1); border-color:rgba(248,113,113,.3); color:var(--bad); }
-.trad-team.winner { font-weight:600; }
-/* Bracket lines */
-.trad-connector { width:20px; position:relative; }
-.trad-region.left .trad-connector::before { content:''; position:absolute; right:0; top:50%; width:10px; height:1px; background:var(--border2); }
-.trad-region.right .trad-connector::before { content:''; position:absolute; left:0; top:50%; width:10px; height:1px; background:var(--border2); }
-.trad-matchup-pair { display:flex; flex-direction:column; position:relative; }
-.trad-matchup-pair::after { content:''; position:absolute; width:1px; background:var(--border2); }
-.trad-region.left .trad-matchup-pair::after { right:-10px; top:25%; height:50%; }
-.trad-region.right .trad-matchup-pair::after { left:-10px; top:25%; height:50%; }
-/* Final Four Section */
-.trad-ff { display:flex; flex-direction:column; align-items:center; gap:16px; padding:0 24px; min-width:160px; }
-.trad-ff-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
-.trad-ff-team { font-size:12px; font-weight:500; padding:8px 16px; background:var(--s2); border:1px solid var(--border); border-radius:6px; text-align:center; min-width:100px; }
-.trad-ff-team.correct { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); }
-.trad-ff-team.incorrect { background:rgba(248,113,113,.1); border-color:rgba(248,113,113,.3); color:var(--bad); }
-.trad-champ { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.04em; padding:12px 20px; background:var(--gold)15; border:2px solid var(--gold)66; color:var(--gold); border-radius:8px; }
-.trad-champ.correct { background:rgba(74,222,128,.15); border-color:var(--ok); color:var(--ok); }
-.trad-champ.incorrect { background:rgba(248,113,113,.12); border-color:var(--bad); color:var(--bad); }
-.trad-region-label { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.06em; color:var(--accent); writing-mode:vertical-rl; text-orientation:mixed; padding:8px 4px; }
-.trad-region.left .trad-region-label { transform:rotate(180deg); margin-right:8px; }
-.trad-region.right .trad-region-label { margin-left:8px; }
-.trad-bracket-container { display:flex; flex-direction:column; gap:32px; }
-.trad-spacer { flex-shrink:0; }
-.trad-ff-spacer { width:160px; min-width:160px; }
-.trad-top, .trad-bottom { display:flex; align-items:center; justify-content:center; }
-@media(max-width:1100px) { .trad-bracket { min-width:1000px; } .trad-team { min-width:80px; font-size:9px; } }
-@media(max-width:900px) { .trad-bracket { flex-direction:column; min-width:auto; } .trad-region { flex-direction:column !important; } .trad-region-label { writing-mode:horizontal-tb; transform:none !important; margin:8px 0 !important; } }
+/* Bracket Grid Layout */
+.bracket-grid { display:grid; grid-template-columns:1fr 200px 1fr; grid-template-rows:auto auto; gap:16px 8px; min-width:1100px; }
+.bracket-region { min-height:300px; position:relative; }
+.bracket-region::before { content:attr(data-region); position:absolute; top:0; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.06em; color:var(--accent); }
+.bracket-left::before { left:0; }
+.bracket-right::before { right:0; }
+.bracket-ff { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; grid-row:span 2; padding:20px 0; }
+.bracket-ff-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); }
+.bracket-ff-team { font-size:13px; font-weight:500; padding:10px 20px; background:var(--s2); border:1px solid var(--border); border-radius:6px; text-align:center; min-width:120px; }
+.bracket-ff-team.correct { background:rgba(74,222,128,.12); border-color:rgba(74,222,128,.4); color:var(--ok); }
+.bracket-ff-team.incorrect { background:rgba(248,113,113,.1); border-color:rgba(248,113,113,.3); color:var(--bad); }
+.bracket-champ { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.04em; padding:14px 24px; background:rgba(251,191,36,.1); border:2px solid rgba(251,191,36,.4); border-radius:8px; margin:8px 0; }
+.bracket-champ.correct { background:rgba(74,222,128,.15); border-color:var(--ok); color:var(--ok); }
+.bracket-champ.incorrect { background:rgba(248,113,113,.12); border-color:var(--bad); color:var(--bad); }
+.bracket-spacer { grid-column:2; }
+/* Bracketry theme overrides */
+.bracket-region svg { width:100%; height:100%; }
+.bracket-region .round-title { font-family:'DM Mono',monospace !important; font-size:9px !important; fill:var(--dim) !important; text-transform:uppercase; letter-spacing:.08em; }
+.bracket-region .match-wrapper { cursor:default; }
+.bracket-region .side-wrapper { background:var(--s2); border:1px solid var(--border); border-radius:4px; }
+.bracket-region .side-wrapper.highlighted { background:var(--s3); }
+.bracket-region .contestant-title { font-family:'DM Sans',sans-serif !important; font-size:11px !important; fill:var(--text) !important; }
+.bracket-region .connector-line { stroke:var(--border2) !important; }
+.bracket-region .side-wrapper[data-winner="true"] { background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.3); }
+.bracket-region .side-wrapper[data-winner="true"] .contestant-title { fill:var(--ok) !important; }
+.bracket-region .side-wrapper[data-loser="true"] { opacity:0.5; }
+@media(max-width:1100px) { .bracket-grid { min-width:900px; grid-template-columns:1fr 160px 1fr; } }
+@media(max-width:900px) { .bracket-grid { grid-template-columns:1fr; grid-template-rows:auto; min-width:auto; } .bracket-ff { grid-row:auto; } }
 
 /* RESULTS VIEW */
 .results-view { display:grid; grid-template-columns:280px 1fr; gap:20px; }
@@ -467,7 +455,15 @@ footer { border-top:1px solid var(--border); }
   <div class="bracket-section">
     <div class="bracket-tabs" id="bracket-tabs"></div>
     <div class="bracket-wrap">
-      <div class="bracket" id="bracket-viz"></div>
+      <div class="bracket-grid" id="bracket-viz">
+        <div class="bracket-region bracket-left" id="bracket-east"></div>
+        <div class="bracket-ff" id="bracket-ff"></div>
+        <div class="bracket-region bracket-right" id="bracket-west"></div>
+        <div class="bracket-region bracket-left" id="bracket-south"></div>
+        <div class="bracket-spacer"></div>
+        <div class="bracket-region bracket-right" id="bracket-midwest"></div>
+      </div>
+      <div class="results-view" id="results-viz" style="display:none;"></div>
     </div>
   </div>
 
@@ -548,6 +544,8 @@ footer { border-top:1px solid var(--border); }
 
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Bracketry - tournament bracket visualization -->
+<script src="https://cdn.jsdelivr.net/npm/bracketry@1.1.3/dist/bracketry.min.js"></script>
 
 <script>
 // ─── PICKS (single source of truth) ───────────────────────────────────────
@@ -1455,8 +1453,10 @@ function selectBracket(id) {
   currentBracketAI = id;
   renderBracketTabs();
   if (id === 'results') {
+    showResultsView();
     renderResults();
   } else {
+    showBracketView();
     renderBracket(id, allScores());
   }
 }
@@ -1465,7 +1465,7 @@ function renderBracket(aiId, sc) {
   const p = PICKS[aiId];
   const d = sc[aiId].d;
 
-  // Get team status for any round
+  // Get team status
   const getStatus = (round, region, team, idx) => {
     if (round === 'champ') return d.champ || 'pending';
     if (round === 'ff') return d.ff?.[idx] || 'pending';
@@ -1473,89 +1473,126 @@ function renderBracket(aiId, sc) {
     const picks = d[round]?.[region] || [];
     return picks[idx] || 'pending';
   };
+  const cls = (st) => st === 'correct' ? 'correct' : st === 'incorrect' ? 'incorrect' : '';
 
-  const cls = (status) => status === 'correct' ? 'correct' : status === 'incorrect' ? 'incorrect' : '';
-
-  // Build a round column with appropriate spacing
-  const buildRound = (teams, round, region, spacing) => {
-    const spacerHeight = spacing > 1 ? `style="height:${(spacing-1)*28}px"` : '';
-    return teams.map((team, i) => {
-      const status = cls(getStatus(round, region, team, i));
-      const topSpacer = i === 0 && spacing > 1 ? `<div class="trad-spacer" style="height:${(spacing-1)*14}px"></div>` : '';
-      const bottomSpacer = spacing > 1 ? `<div class="trad-spacer" style="height:${(spacing-1)*28}px"></div>` : '';
-      return `${topSpacer}<div class="trad-team ${status}">${team}</div>${i < teams.length - 1 ? bottomSpacer : ''}`;
-    }).join('');
-  };
-
-  // Build region for left side (flows left to right toward center)
-  const buildLeftRegion = (region, label) => {
+  // Build Bracketry data for a region
+  const buildRegionData = (region, isRight) => {
     const r64 = p.r64[region] || [];
     const r32 = p.r32[region] || [];
     const s16 = p.s16[region] || [];
     const e8 = p.e8[region];
 
-    return `
-      <div class="trad-region left">
-        <div class="trad-region-label">${label}</div>
-        <div class="trad-round">${buildRound(r64, 'r64', region, 1)}</div>
-        <div class="trad-connector"></div>
-        <div class="trad-round">${buildRound(r32, 'r32', region, 2)}</div>
-        <div class="trad-connector"></div>
-        <div class="trad-round">${buildRound(s16, 's16', region, 4)}</div>
-        <div class="trad-connector"></div>
-        <div class="trad-round"><div class="trad-team winner ${cls(getStatus('e8', region, e8, 0))}">${e8}</div></div>
-      </div>`;
+    // Create matches: pair r64 winners → r32 winners → s16 winners → e8 winner
+    const matches = [];
+    let matchOrder = 0;
+
+    // Round 0: R64 winners paired (8 teams → 4 matches)
+    for (let i = 0; i < 8; i += 2) {
+      matches.push({
+        roundIndex: 0, order: matchOrder++,
+        sides: [
+          { title: r64[i], isWinner: r32.includes(r64[i]) },
+          { title: r64[i+1], isWinner: r32.includes(r64[i+1]) }
+        ]
+      });
+    }
+
+    // Round 1: R32 winners paired (4 teams → 2 matches)
+    matchOrder = 0;
+    for (let i = 0; i < 4; i += 2) {
+      matches.push({
+        roundIndex: 1, order: matchOrder++,
+        sides: [
+          { title: r32[i], isWinner: s16.includes(r32[i]) },
+          { title: r32[i+1], isWinner: s16.includes(r32[i+1]) }
+        ]
+      });
+    }
+
+    // Round 2: S16 winners paired (2 teams → 1 match)
+    matches.push({
+      roundIndex: 2, order: 0,
+      sides: [
+        { title: s16[0], isWinner: s16[0] === e8 },
+        { title: s16[1], isWinner: s16[1] === e8 }
+      ]
+    });
+
+    // Round 3: E8 winner
+    matches.push({
+      roundIndex: 3, order: 0,
+      sides: [{ title: e8, isWinner: true }]
+    });
+
+    return {
+      rounds: [{ name: 'R64' }, { name: 'R32' }, { name: 'S16' }, { name: 'E8' }],
+      matches
+    };
   };
 
-  // Build region for right side (flows right to left toward center)
-  const buildRightRegion = (region, label) => {
-    const r64 = p.r64[region] || [];
-    const r32 = p.r32[region] || [];
-    const s16 = p.s16[region] || [];
-    const e8 = p.e8[region];
+  // Clear existing brackets
+  ['east', 'west', 'south', 'midwest'].forEach(r => {
+    const el = document.getElementById(`bracket-${r}`);
+    if (el) el.innerHTML = '';
+  });
 
-    return `
-      <div class="trad-region right">
-        <div class="trad-round"><div class="trad-team winner ${cls(getStatus('e8', region, e8, 0))}">${e8}</div></div>
-        <div class="trad-connector"></div>
-        <div class="trad-round">${buildRound(s16, 's16', region, 4)}</div>
-        <div class="trad-connector"></div>
-        <div class="trad-round">${buildRound(r32, 'r32', region, 2)}</div>
-        <div class="trad-connector"></div>
-        <div class="trad-round">${buildRound(r64, 'r64', region, 1)}</div>
-        <div class="trad-region-label">${label}</div>
-      </div>`;
-  };
+  // Create Bracketry instances for each region
+  const regions = [
+    { id: 'east', region: 'east', label: 'EAST', isRight: false },
+    { id: 'west', region: 'west', label: 'WEST', isRight: true },
+    { id: 'south', region: 'south', label: 'SOUTH', isRight: false },
+    { id: 'midwest', region: 'midwest', label: 'MIDWEST', isRight: true }
+  ];
 
-  // Final Four section
+  regions.forEach(({ id, region, label, isRight }) => {
+    const container = document.getElementById(`bracket-${id}`);
+    if (!container) return;
+    container.setAttribute('data-region', label);
+    container.style.height = '320px';
+
+    try {
+      const data = buildRegionData(region, isRight);
+      window.Bracketry?.createBracket(data, container, {
+        navButtonsPosition: 'none',
+        verticalScrollMode: 'none',
+        rootBorderColor: 'transparent',
+        rootBgColor: 'transparent',
+        connectionLinesColor: '#374151',
+        connectionLinesWidth: 1,
+        matchAxisMargin: 12,
+        matchHorMargin: 24,
+        roundTitlesVerticalPadding: 8,
+        roundTitlesFontSize: 10,
+        roundTitlesFontFamily: 'DM Mono, monospace',
+        roundTitlesColor: '#6b7280',
+        matchFontSize: 11,
+        matchTextColor: '#e5e7eb',
+        matchBgColor: '#1f2937',
+        matchHoverBgColor: '#374151',
+        highlightedPlayerTitleColor: '#4ade80',
+        disableSeparateScores: true,
+        flipBracket: isRight
+      });
+    } catch (e) {
+      console.warn('Bracketry error:', e);
+      container.innerHTML = `<div style="color:var(--dim);padding:20px;">Bracket visualization unavailable</div>`;
+    }
+  });
+
+  // Render Final Four section
   const ff0Status = cls(getStatus('ff', null, p.ff[0], 0));
   const ff1Status = cls(getStatus('ff', null, p.ff[1], 1));
   const champStatus = cls(getStatus('champ', null, p.champ, 0));
   const champColor = champStatus === 'correct' ? 'var(--ok)' : champStatus === 'incorrect' ? 'var(--bad)' : p.color;
 
-  const html = `
-    <div class="trad-bracket-container">
-      <div class="trad-bracket trad-top">
-        ${buildLeftRegion('east', 'EAST')}
-        <div class="trad-ff">
-          <div class="trad-ff-label">Final Four</div>
-          <div class="trad-ff-team ${ff0Status}">${p.ff[0]}</div>
-          <div class="trad-ff-label">Champion</div>
-          <div class="trad-champ ${champStatus}" style="color:${champColor}">${p.champ}</div>
-          <div class="trad-ff-label">Final Four</div>
-          <div class="trad-ff-team ${ff1Status}">${p.ff[1]}</div>
-        </div>
-        ${buildRightRegion('west', 'WEST')}
-      </div>
-      <div class="trad-bracket trad-bottom">
-        ${buildLeftRegion('south', 'SOUTH')}
-        <div class="trad-ff-spacer"></div>
-        ${buildRightRegion('midwest', 'MIDWEST')}
-      </div>
-    </div>
+  document.getElementById('bracket-ff').innerHTML = `
+    <div class="bracket-ff-label">East/West</div>
+    <div class="bracket-ff-team ${ff0Status}">${p.ff[0]}</div>
+    <div class="bracket-ff-label">Champion</div>
+    <div class="bracket-champ ${champStatus}" style="color:${champColor}">${p.champ}</div>
+    <div class="bracket-ff-label">South/Midwest</div>
+    <div class="bracket-ff-team ${ff1Status}">${p.ff[1]}</div>
   `;
-
-  document.getElementById('bracket-viz').innerHTML = html;
 }
 
 function renderResults() {
@@ -1665,7 +1702,17 @@ function renderResults() {
     </div>
   `;
 
-  document.getElementById('bracket-viz').innerHTML = html;
+  document.getElementById('results-viz').innerHTML = html;
+}
+
+// Show/hide bracket vs results view
+function showBracketView() {
+  document.getElementById('bracket-viz').style.display = 'grid';
+  document.getElementById('results-viz').style.display = 'none';
+}
+function showResultsView() {
+  document.getElementById('bracket-viz').style.display = 'none';
+  document.getElementById('results-viz').style.display = 'grid';
 }
 
 // ─── STATUS ────────────────────────────────────────────────────────────────
