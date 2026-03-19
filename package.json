@@ -1,0 +1,7 @@
+{
+  "name": "model-madness",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2"
+  }
+}
