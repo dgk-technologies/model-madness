@@ -539,7 +539,6 @@ footer { border-top:1px solid var(--border); }
   <div class="footer-inner">
     <span class="footer-note">modelmadness.ai · Picks made Mar 19, 2026 · Auto-scores via ESPN · Final Four: Apr 4 · Championship: Apr 6 · Indianapolis</span>
     <div class="footer-btns">
-      <button class="footer-export" onclick="showEmbed()">Embed</button>
       <button class="footer-export" onclick="shareToX()">Share on X</button>
     </div>
   </div>
@@ -1815,21 +1814,6 @@ function applyOverride() {
       setTimeout(launchConfetti, 300);
     }
   } catch(e){ toast('Invalid JSON: '+e.message); }
-}
-
-// ─── EMBED ─────────────────────────────────────────────────────────────────
-function showEmbed() {
-  const embedCode = `<iframe src="https://modelmadness.ai/embed.html" width="400" height="280" frameborder="0" style="border-radius:12px;"></iframe>`;
-  navigator.clipboard.writeText(embedCode).then(() => {
-    toast('Embed code copied!');
-  }).catch(() => {
-    // Fallback: show in alert
-    prompt('Copy embed code:', embedCode);
-  });
-  // Track embed copy in GA
-  if (typeof gtag === 'function') {
-    gtag('event', 'share', { method: 'embed', content_type: 'widget' });
-  }
 }
 
 // ─── EXPORT ────────────────────────────────────────────────────────────────
