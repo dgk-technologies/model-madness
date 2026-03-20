@@ -1160,11 +1160,12 @@ function parseESPN(data) {
   };
 
   // Region detection from notes
+  // Check 'midwest' before 'west' since 'midwest' contains 'west'
   const detectRegion = (notes) => {
     const n = notes.toLowerCase();
+    if (n.includes('midwest')) return 'midwest';
     if (n.includes('east')) return 'east';
     if (n.includes('west')) return 'west';
-    if (n.includes('midwest')) return 'midwest';
     if (n.includes('south')) return 'south';
     return null;
   };
