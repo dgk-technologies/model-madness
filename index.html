@@ -1539,12 +1539,43 @@ function renderBracket(aiId, sc) {
   const p = PICKS[aiId];
   const d = sc[aiId].d;
 
-  // Check if AI pick matches actual result
+  // Check if AI pick matches actual result for a specific round
+  // Also checks if team was eliminated in a previous round
   const getStatus = (round, region, team) => {
-    const actual = S.winners[round]?.[region] || [];
-    if (!actual.length) return 'pending';
+    if (!team) return 'pending';
     const normalTeam = team.toLowerCase().trim();
-    const isCorrect = actual.some(w => w.toLowerCase().trim() === normalTeam);
+
+    // Check if team was eliminated in a previous round
+    const prevRounds = { r32: 'r64', s16: 'r32', e8: 's16' };
+    const prevRound = prevRounds[round];
+    if (prevRound) {
+      const prevWinners = S.winners[prevRound]?.[region];
+      // Handle both array (r64, r32, s16) and single value (e8)
+      if (Array.isArray(prevWinners)) {
+        if (prevWinners.length > 0 && !prevWinners.some(w => w.toLowerCase().trim() === normalTeam)) {
+          return 'incorrect';
+        }
+      } else if (prevWinners) {
+        if (prevWinners.toLowerCase().trim() !== normalTeam) {
+          return 'incorrect';
+        }
+      }
+    }
+
+    // Get actual winners for this round
+    const actual = S.winners[round]?.[region];
+
+    // Handle e8 which is a single string, not an array
+    if (round === 'e8') {
+      if (!actual) return 'pending';
+      return actual.toLowerCase().trim() === normalTeam ? 'correct' : 'incorrect';
+    }
+
+    // For array-based rounds (r64, r32, s16)
+    const actualArr = actual || [];
+    if (!actualArr.length) return 'pending';
+
+    const isCorrect = actualArr.some(w => w.toLowerCase().trim() === normalTeam);
     return isCorrect ? 'correct' : 'incorrect';
   };
 
@@ -1592,7 +1623,7 @@ function renderBracket(aiId, sc) {
     // Column 3: R64 winners (AI picks) = R32 matchups
     r64Picks.forEach((team, i) => {
       const row = i * 2 + 1;
-      const status = getStatus('r64', region, team);
+      const status = getStatus('r32', region, team);
       const advances = isPick(team, r32Picks);
       let cls = status;
       if (status === 'pending') {
@@ -1610,7 +1641,7 @@ function renderBracket(aiId, sc) {
     // Column 5: R32 winners (AI picks) = S16 matchups
     r32Picks.forEach((team, i) => {
       const row = i * 4 + 2;
-      const status = getStatus('r32', region, team);
+      const status = getStatus('s16', region, team);
       const advances = isPick(team, s16Picks);
       let cls = status;
       if (status === 'pending') {
@@ -1628,7 +1659,7 @@ function renderBracket(aiId, sc) {
     // Column 7: S16 winners (AI picks) = E8 matchup
     s16Picks.forEach((team, i) => {
       const row = i * 8 + 4;
-      const status = getStatus('s16', region, team);
+      const status = getStatus('e8', region, team);
       const advances = team.toLowerCase().trim() === e8Pick?.toLowerCase().trim();
       let cls = status;
       if (status === 'pending') {
