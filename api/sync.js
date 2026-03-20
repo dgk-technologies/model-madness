@@ -4,7 +4,22 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+const ESPN_BASE_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+
+// Generate date strings for tournament period (YYYYMMDD format)
+function getTournamentDates() {
+  const dates = [];
+  // Tournament runs roughly March 18 - April 7
+  const start = new Date('2026-03-18');
+  const end = new Date('2026-04-08');
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    dates.push(`${year}${month}${day}`);
+  }
+  return dates;
+}
 
 // Team name normalization (ESPN full names → short names used in PICKS/BRACKET)
 const NORM = {
@@ -110,12 +125,20 @@ module.exports = async function handler(req, res) {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   try {
-    // Fetch from ESPN
-    const espnRes = await fetch(ESPN_URL, { cache: 'no-store' });
-    if (!espnRes.ok) {
-      throw new Error(`ESPN returned ${espnRes.status}`);
+    // Fetch from ESPN for all tournament dates
+    const tournamentDates = getTournamentDates();
+    const allEvents = [];
+
+    for (const date of tournamentDates) {
+      const url = `${ESPN_BASE_URL}&dates=${date}`;
+      const espnRes = await fetch(url, { cache: 'no-store' });
+      if (espnRes.ok) {
+        const data = await espnRes.json();
+        if (data.events) {
+          allEvents.push(...data.events);
+        }
+      }
     }
-    const data = await espnRes.json();
 
     // Parse ESPN data
     const ff = new Set();
@@ -143,7 +166,7 @@ module.exports = async function handler(req, res) {
       return null;
     };
 
-    for (const ev of (data.events || [])) {
+    for (const ev of allEvents) {
       const comp = ev.competitions?.[0];
       if (!comp) continue;
 

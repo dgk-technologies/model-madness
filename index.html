@@ -1086,7 +1086,21 @@ function allScores() {
 }
 
 // ─── ESPN FETCH ────────────────────────────────────────────────────────────
-const ESPN_URL='https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+const ESPN_BASE_URL='https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=100&limit=100';
+
+// Generate date strings for tournament period (YYYYMMDD format)
+function getTournamentDates() {
+  const dates = [];
+  const start = new Date('2026-03-18');
+  const end = new Date('2026-04-08');
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    dates.push(`${year}${month}${day}`);
+  }
+  return dates;
+}
 
 async function doFetch() {
   setStatus('loading');
@@ -1097,9 +1111,18 @@ async function doFetch() {
   // If Supabase didn't have data or isn't configured, try ESPN
   if (!gotSupabase) {
     try {
-      const r = await fetch(ESPN_URL, {cache:'no-store'});
-      if (!r.ok) throw new Error(r.status);
-      parseESPN(await r.json());
+      // Fetch all tournament dates
+      const tournamentDates = getTournamentDates();
+      const allEvents = [];
+      for (const date of tournamentDates) {
+        const url = `${ESPN_BASE_URL}&dates=${date}`;
+        const r = await fetch(url, {cache:'no-store'});
+        if (r.ok) {
+          const data = await r.json();
+          if (data.events) allEvents.push(...data.events);
+        }
+      }
+      parseESPN({ events: allEvents });
       S.source = 'espn';
       S.status='live'; S.lastFetch=new Date();
     } catch(e) {
